@@ -17,9 +17,10 @@ defmodule RedEye.Application do
       # Start Finch
       {Finch, name: RedEye.Finch},
       # Start the Endpoint (http/https)
-      RedEyeWeb.Endpoint
+      RedEyeWeb.Endpoint,
       # Start a worker by calling: RedEye.Worker.start_link(arg)
       # {RedEye.Worker, arg}
+      {Oban, Application.fetch_env!(:red_eye, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

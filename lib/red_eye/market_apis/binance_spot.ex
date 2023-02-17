@@ -9,7 +9,7 @@ defmodule RedEye.MarketApis.BinanceSpot do
     Req.new(base_url: @base_url)
   end
 
-  def fetch(start_time: start_time, symbol: symbol, interval: interval) do
+  def fetch(start_time, symbol, interval) do
     params = [
       symbol: symbol,
       startTime: start_time,
@@ -54,8 +54,8 @@ defmodule RedEye.MarketApis.BinanceSpot do
         number_of_trades: Enum.at(item, 8),
         taker_buy_base_asset_volume: decimal(item, 9),
         taker_buy_quote_asset_volume: decimal(item, 10),
-        inserted_at: DateTime.utc_now(:millisecond),
-        updated_at: DateTime.utc_now(:millisecond)
+        inserted_at: now(),
+        updated_at: now()
       }
     end)
   end
@@ -63,9 +63,17 @@ defmodule RedEye.MarketApis.BinanceSpot do
   defp timestamp(item, i) do
     item
     |> Enum.at(i)
+    |> to_integer()
     |> DateTime.from_unix!(:millisecond)
+    |> DateTime.truncate(:second)
+  end
 
-    # |> DateTime.truncate(:millisecond)
+  defp to_integer(string) when is_binary(string), do: String.to_integer(string)
+  defp to_integer(number) when is_number(number), do: number
+
+  defp now do
+    DateTime.utc_now()
+    |> DateTime.truncate(:second)
   end
 
   defp decimal(item, i) do
