@@ -20,9 +20,14 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={{f, :exchange}} type="text" label="Exchange" />
+        <.input field={{f, :exchange}} type="text" label="Exchange" value="BinanceSpot" />
         <.input field={{f, :symbol}} type="text" label="Symbol" />
-        <.input field={{f, :default_interval}} type="text" label="Default interval" />
+        <.input
+          field={{f, :default_interval}}
+          type="select"
+          label="Default interval"
+          options={RedEye.Charts.interval_options()}
+        />
         <:actions>
           <.button phx-disable-with="Saving...">Save Chart</.button>
         </:actions>

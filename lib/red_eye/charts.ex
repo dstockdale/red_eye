@@ -8,6 +8,17 @@ defmodule RedEye.Charts do
 
   alias RedEye.Charts.Chart
 
+  def interval_options do
+    [
+      "15 mins": "15 mins",
+      "30 mins": "30 mins",
+      "1 hour": "1 hour",
+      "2 hours": "2 hours",
+      "4 hours": "4 hours",
+      "1 day": "1 day"
+    ]
+  end
+
   @doc """
   Returns the list of charts.
 
