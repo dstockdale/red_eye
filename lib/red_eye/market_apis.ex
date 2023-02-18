@@ -1,6 +1,7 @@
 defmodule RedEye.MarketApis do
-  alias RedEye.MarketApis.{BinanceSpot, Timing}
+  alias RedEye.MarketApis.{BinanceSpot, BinanceSpotQueries, Timing}
   alias RedEye.MarketData
+  alias RedEye.Repo
 
   def import_binance_spot_candles_from_date(
         start_date,
@@ -20,7 +21,7 @@ defmodule RedEye.MarketApis do
 
   def import_binance_spot_candles_jobs(symbol, interval, timestamps) do
     changesets =
-      timestamps
+      exclude_inserted_timestamps(timestamps, symbol)
       |> Enum.map(fn start_time ->
         %{symbol: symbol, interval: interval, start_time: start_time}
         |> RedEye.Workers.ImportBinanceSpotCandlesWorker.new()
@@ -29,5 +30,13 @@ defmodule RedEye.MarketApis do
     Ecto.Multi.new()
     |> Oban.insert_all(:jobs, changesets)
     |> RedEye.Repo.transaction()
+  end
+
+  defp exclude_inserted_timestamps(timestamps, symbol) do
+    already_inserted =
+      BinanceSpotQueries.existing_candles(timestamps, symbol)
+      |> Repo.all()
+
+    timestamps -- already_inserted
   end
 end

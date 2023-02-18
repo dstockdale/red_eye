@@ -18,6 +18,12 @@ defmodule RedEyeWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/charts", ChartLive.Index, :index
+    live "/charts/new", ChartLive.Index, :new
+    live "/charts/:id/edit", ChartLive.Index, :edit
+
+    live "/charts/:id", ChartLive.Show, :show
+    live "/charts/:id/show/edit", ChartLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

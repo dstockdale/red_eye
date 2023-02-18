@@ -1,0 +1,19 @@
+lockfileVersion: 5.4
+
+specifiers:
+  lightweight-charts: ^4.0.0
+
+dependencies:
+  lightweight-charts: 4.0.0
+
+packages:
+
+  /fancy-canvas/2.1.0:
+    resolution: {integrity: sha512-nifxXJ95JNLFR2NgRV4/MxVP45G9909wJTEKz5fg/TZS20JJZA6hfgRVh/bC9bwl2zBtBNcYPjiBE4njQHVBwQ==}
+    dev: false
+
+  /lightweight-charts/4.0.0:
+    resolution: {integrity: sha512-0nS3mZ3WTaO3uuyWggvFWjHqe9hFYIjyddIozAZaPv1U+dYJ2ED64UlGSOmOIMuZ/Md1Ew/NLWYp3iPhcvO1Rg==}
+    dependencies:
+      fancy-canvas: 2.1.0
+    dev: false

@@ -3,9 +3,13 @@ defmodule RedEye.MarketData.BinanceSpotCandle do
   import Ecto.Changeset
 
   @timestamps_opts [type: :utc_datetime]
-  @primary_key {:id, :binary_id, autogenerate: true}
+  @primary_key false
   @foreign_key_type :binary_id
   schema "binance_spot_candles" do
+    field :timestamp, :utc_datetime, primary_key: true
+    field :symbol, :string, primary_key: true
+    field :interval, :string, primary_key: true
+    field :unix_time, :integer
     field :close, :decimal
     field :high, :decimal
     field :kline_close_time, :utc_datetime
@@ -14,11 +18,8 @@ defmodule RedEye.MarketData.BinanceSpotCandle do
     field :number_of_trades, :integer
     field :open, :decimal
     field :quote_asset_volume, :decimal
-    field :symbol, :string
     field :taker_buy_base_asset_volume, :decimal
     field :taker_buy_quote_asset_volume, :decimal
-    field :interval, :string
-    field :timestamp, :utc_datetime
     field :volume, :decimal
 
     timestamps()
@@ -28,14 +29,15 @@ defmodule RedEye.MarketData.BinanceSpotCandle do
   def changeset(binance_spot_candle, attrs) do
     binance_spot_candle
     |> cast(attrs, [
+      :timestamp,
       :symbol,
+      :interval,
+      :unix_time,
       :high,
       :low,
       :open,
       :close,
       :volume,
-      :timestamp,
-      :interval,
       :kline_open_time,
       :kline_close_time,
       :quote_asset_volume,
@@ -44,14 +46,15 @@ defmodule RedEye.MarketData.BinanceSpotCandle do
       :taker_buy_quote_asset_volume
     ])
     |> validate_required([
+      :timestamp,
       :symbol,
+      :interval,
+      :unix_time,
       :high,
       :low,
       :open,
       :close,
       :volume,
-      :timestamp,
-      :interval,
       :kline_open_time,
       :kline_close_time,
       :quote_asset_volume,

@@ -43,6 +43,7 @@ defmodule RedEye.MarketApis.BinanceSpot do
         symbol: symbol,
         interval: interval,
         timestamp: timestamp(item, 0),
+        unix_time: Enum.at(item, 0),
         open: decimal(item, 1),
         high: decimal(item, 2),
         low: decimal(item, 3),

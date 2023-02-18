@@ -52,7 +52,9 @@ defmodule RedEye.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:req, "~> 0.3"},
-      {:oban, "~> 2.13"}
+      {:oban, "~> 2.13"},
+      {:ecto_timescaledb, "~> 0.10.0"},
+      {:live_select, "~> 1.0"}
     ]
   end
 

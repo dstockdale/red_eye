@@ -1,0 +1,41 @@
+<.header>
+  Listing Charts
+  <:actions>
+    <.link patch={~p"/charts/new"}>
+      <.button>New Chart</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table id="charts" rows={@charts} row_click={&JS.navigate(~p"/charts/#{&1}")}>
+  <:col :let={chart} label="Exchange"><%= chart.exchange %></:col>
+  <:col :let={chart} label="Symbol"><%= chart.symbol %></:col>
+  <:col :let={chart} label="Default interval"><%= chart.default_interval %></:col>
+  <:action :let={chart}>
+    <div class="sr-only">
+      <.link navigate={~p"/charts/#{chart}"}>Show</.link>
+    </div>
+    <.link patch={~p"/charts/#{chart}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={chart}>
+    <.link phx-click={JS.push("delete", value: %{id: chart.id})} data-confirm="Are you sure?">
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="chart-modal"
+  show
+  on_cancel={JS.navigate(~p"/charts")}
+>
+  <.live_component
+    module={RedEyeWeb.ChartLive.FormComponent}
+    id={@chart.id || :new}
+    title={@page_title}
+    action={@live_action}
+    chart={@chart}
+    navigate={~p"/charts"}
+  />
+</.modal>
