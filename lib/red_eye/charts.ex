@@ -64,6 +64,7 @@ defmodule RedEye.Charts do
     %Chart{}
     |> Chart.changeset(attrs)
     |> Repo.insert()
+    |> broadcast(:chart_created)
   end
 
   @doc """
@@ -82,6 +83,7 @@ defmodule RedEye.Charts do
     chart
     |> Chart.changeset(attrs)
     |> Repo.update()
+    |> broadcast(:chart_updated)
   end
 
   @doc """
@@ -112,4 +114,20 @@ defmodule RedEye.Charts do
   def change_chart(%Chart{} = chart, attrs \\ %{}) do
     Chart.changeset(chart, attrs)
   end
+
+  def subscribe do
+    Phoenix.PubSub.subscribe(RedEye.PubSub, "charts")
+  end
+
+  defp broadcast({:ok, chart}, event) do
+    Phoenix.PubSub.broadcast(
+      RedEye.PubSub,
+      "charts",
+      {event, chart}
+    )
+
+    {:ok, chart}
+  end
+
+  defp broadcast({:error, _reason} = error, _event), do: error
 end
