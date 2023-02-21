@@ -22,22 +22,6 @@ defmodule RedEye.MarketData do
   end
 
   @doc """
-  Gets a single binance_spot_candle.
-
-  Raises `Ecto.NoResultsError` if the Binance spot candle does not exist.
-
-  ## Examples
-
-      iex> get_binance_spot_candle!(123)
-      %BinanceSpotCandle{}
-
-      iex> get_binance_spot_candle!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_binance_spot_candle!(id), do: Repo.get!(BinanceSpotCandle, id)
-
-  @doc """
   Creates a binance_spot_candle.
 
   ## Examples
@@ -60,24 +44,6 @@ defmodule RedEye.MarketData do
 
   def create_binance_spot_candle(list) when is_list(list) do
     Repo.insert_all(BinanceSpotCandle, list, on_conflict: :nothing)
-  end
-
-  @doc """
-  Updates a binance_spot_candle.
-
-  ## Examples
-
-      iex> update_binance_spot_candle(binance_spot_candle, %{field: new_value})
-      {:ok, %BinanceSpotCandle{}}
-
-      iex> update_binance_spot_candle(binance_spot_candle, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_binance_spot_candle(%BinanceSpotCandle{} = binance_spot_candle, attrs) do
-    binance_spot_candle
-    |> BinanceSpotCandle.changeset(attrs)
-    |> Repo.update()
   end
 
   @doc """
@@ -107,5 +73,25 @@ defmodule RedEye.MarketData do
   """
   def change_binance_spot_candle(%BinanceSpotCandle{} = binance_spot_candle, attrs \\ %{}) do
     BinanceSpotCandle.changeset(binance_spot_candle, attrs)
+  end
+
+  alias RedEye.MarketData.BinanceSymbol
+
+  def upsert_binance_symbols(symbols) do
+    Repo.insert_all(BinanceSymbol, symbols,
+      on_conflict: {:replace_all_except, [:symbol, :inserted_at]},
+      conflict_target: [:symbol]
+    )
+  end
+
+  def list_binance_symbols(search \\ "") do
+    search = "%#{search}%"
+
+    query =
+      from b in BinanceSymbol,
+        where: ilike(b.symbol, ^search),
+        order_by: b.symbol
+
+    Repo.all(query)
   end
 end

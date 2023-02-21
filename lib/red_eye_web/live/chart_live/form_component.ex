@@ -13,21 +13,19 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
       </.header>
 
       <.simple_form
-        :let={f}
-        for={@changeset}
+        for={@form}
         id="chart-form"
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={{f, :exchange}} type="text" label="Exchange" value="BinanceSpot" />
-        <.input field={{f, :symbol}} type="text" label="Symbol" />
         <.input
-          field={{f, :default_interval}}
+          field={@form[:exchange]}
           type="select"
-          label="Default interval"
-          options={RedEye.Charts.interval_options()}
+          options={RedEye.Charts.exchange_options()}
+          label="Exchange"
         />
+        <.input field={@form[:binance_symbol_id]} type="select" options={@symbols} label="Symbol" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Chart</.button>
         </:actions>
@@ -39,11 +37,13 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
   @impl true
   def update(%{chart: chart} = assigns, socket) do
     changeset = Charts.change_chart(chart)
+    symbols = Charts.symbol_options()
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:changeset, changeset)}
+     |> assign(symbols: symbols)
+     |> assign_form(changeset)}
   end
 
   @impl true
@@ -53,7 +53,7 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
       |> Charts.change_chart(chart_params)
       |> Map.put(:action, :validate)
 
-    {:noreply, assign(socket, :changeset, changeset)}
+    {:noreply, assign_form(socket, changeset)}
   end
 
   def handle_event("save", %{"chart" => chart_params}, socket) do
@@ -62,27 +62,37 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
 
   defp save_chart(socket, :edit, chart_params) do
     case Charts.update_chart(socket.assigns.chart, chart_params) do
-      {:ok, _chart} ->
+      {:ok, chart} ->
+        notify_parent({:saved, chart})
+
         {:noreply,
          socket
          |> put_flash(:info, "Chart updated successfully")
-         |> push_navigate(to: socket.assigns.navigate)}
+         |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, :changeset, changeset)}
+        {:noreply, assign_form(socket, changeset)}
     end
   end
 
   defp save_chart(socket, :new, chart_params) do
     case Charts.create_chart(chart_params) do
-      {:ok, _chart} ->
+      {:ok, chart} ->
+        notify_parent({:saved, chart})
+
         {:noreply,
          socket
          |> put_flash(:info, "Chart created successfully")
-         |> push_navigate(to: socket.assigns.navigate)}
+         |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
+        {:noreply, assign_form(socket, changeset)}
     end
   end
+
+  defp assign_form(socket, %Ecto.Changeset{} = changeset) do
+    assign(socket, :form, to_form(changeset))
+  end
+
+  defp notify_parent(msg), do: send(self(), {__MODULE__, msg})
 end

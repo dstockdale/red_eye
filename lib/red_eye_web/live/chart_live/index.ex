@@ -6,7 +6,7 @@ defmodule RedEyeWeb.ChartLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :charts, list_charts())}
+    {:ok, stream(socket, :charts, Charts.list_charts([:binance_symbol]))}
   end
 
   @impl true
@@ -33,14 +33,16 @@ defmodule RedEyeWeb.ChartLive.Index do
   end
 
   @impl true
+  def handle_info({RedEyeWeb.ChartLive.FormComponent, {:saved, chart}}, socket) do
+    chart = Charts.get_chart!(chart.id)
+    {:noreply, stream_insert(socket, :charts, chart)}
+  end
+
+  @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     chart = Charts.get_chart!(id)
     {:ok, _} = Charts.delete_chart(chart)
 
-    {:noreply, assign(socket, :charts, list_charts())}
-  end
-
-  defp list_charts do
-    Charts.list_charts()
+    {:noreply, stream_delete(socket, :charts, chart)}
   end
 end

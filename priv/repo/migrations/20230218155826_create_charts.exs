@@ -4,9 +4,10 @@ defmodule RedEye.Repo.Migrations.CreateCharts do
   def change do
     create table(:charts, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :exchange, :string
-      add :symbol, :string
-      add :default_interval, :string
+      add :exchange, :string, null: false
+      add :symbol, :string, null: false
+      add :default_interval, :string, null: false
+      add :earliest_timestamp, :utc_datetime
 
       timestamps()
     end

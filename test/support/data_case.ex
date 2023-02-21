@@ -20,6 +20,7 @@ defmodule RedEye.DataCase do
     quote do
       alias RedEye.Repo
 
+      import RedEye.Factory
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
@@ -28,7 +29,12 @@ defmodule RedEye.DataCase do
   end
 
   setup tags do
-    RedEye.DataCase.setup_sandbox(tags)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(RedEye.Repo)
+
+    unless tags[:async] do
+      RedEye.DataCase.setup_sandbox(tags)
+    end
+
     :ok
   end
 

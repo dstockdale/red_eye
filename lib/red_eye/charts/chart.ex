@@ -5,9 +5,8 @@ defmodule RedEye.Charts.Chart do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "charts" do
-    field :default_interval, :string
     field :exchange, :string
-    field :symbol, :string
+    belongs_to :binance_symbol, RedEye.MarketData.BinanceSymbol
 
     timestamps()
   end
@@ -15,7 +14,8 @@ defmodule RedEye.Charts.Chart do
   @doc false
   def changeset(chart, attrs) do
     chart
-    |> cast(attrs, [:exchange, :symbol, :default_interval])
-    |> validate_required([:exchange, :symbol, :default_interval])
+    |> cast(attrs, [:exchange, :binance_symbol_id])
+    |> validate_required([:exchange])
+    |> validate_inclusion(:exchange, ~w(binance bitget))
   end
 end

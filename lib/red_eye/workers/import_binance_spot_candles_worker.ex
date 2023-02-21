@@ -1,5 +1,5 @@
 defmodule RedEye.Workers.ImportBinanceSpotCandlesWorker do
-  use Oban.Worker, queue: :default
+  use Oban.Worker, queue: :data_import
 
   @impl Oban.Worker
   @spec perform(Oban.Job.t()) :: :ok

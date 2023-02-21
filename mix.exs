@@ -54,7 +54,8 @@ defmodule RedEye.MixProject do
       {:req, "~> 0.3"},
       {:oban, "~> 2.13"},
       {:ecto_timescaledb, "~> 0.10.0"},
-      {:live_select, "~> 1.0"}
+      {:cachex, "~> 3.6"},
+      {:ex_machina, "~> 2.7.0", only: :test}
     ]
   end
 

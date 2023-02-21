@@ -13,7 +13,7 @@ defmodule RedEyeWeb.ChartLive.Show do
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:chart, Charts.get_chart!(id))}
+     |> assign(:chart, Charts.get_chart!(id, [:binance_symbol]))}
   end
 
   defp page_title(:show), do: "Show Chart"

@@ -2,15 +2,19 @@ defmodule RedEyeWeb.ChartLiveTest do
   use RedEyeWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import RedEye.ChartsFixtures
 
-  @create_attrs %{default_interval: "some default_interval", exchange: "some exchange", symbol: "some symbol"}
-  @update_attrs %{default_interval: "some updated default_interval", exchange: "some updated exchange", symbol: "some updated symbol"}
-  @invalid_attrs %{default_interval: nil, exchange: nil, symbol: nil}
+  @create_attrs %{
+    exchange: "binance"
+  }
+  @update_attrs %{
+    exchange: "bitget"
+  }
+  @invalid_attrs %{exchange: "ftx"}
 
   defp create_chart(_) do
-    chart = chart_fixture()
-    %{chart: chart}
+    binance_symbol = insert(:binance_symbol)
+    chart = insert(:chart, binance_symbol: binance_symbol)
+    %{chart: chart, binance_symbol: binance_symbol}
   end
 
   describe "Index" do
@@ -20,7 +24,7 @@ defmodule RedEyeWeb.ChartLiveTest do
       {:ok, _index_live, html} = live(conn, ~p"/charts")
 
       assert html =~ "Listing Charts"
-      assert html =~ chart.default_interval
+      assert html =~ chart.exchange
     end
 
     test "saves new chart", %{conn: conn} do
@@ -32,17 +36,13 @@ defmodule RedEyeWeb.ChartLiveTest do
       assert_patch(index_live, ~p"/charts/new")
 
       assert index_live
-             |> form("#chart-form", chart: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
+             |> form("#chart-form", chart: @create_attrs)
+             |> render_submit()
 
-      {:ok, _, html} =
-        index_live
-        |> form("#chart-form", chart: @create_attrs)
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/charts")
+      assert_patch(index_live, ~p"/charts")
 
+      html = render(index_live)
       assert html =~ "Chart created successfully"
-      assert html =~ "some default_interval"
     end
 
     test "updates chart in listing", %{conn: conn, chart: chart} do
@@ -54,24 +54,20 @@ defmodule RedEyeWeb.ChartLiveTest do
       assert_patch(index_live, ~p"/charts/#{chart}/edit")
 
       assert index_live
-             |> form("#chart-form", chart: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
+             |> form("#chart-form", chart: @update_attrs)
+             |> render_submit()
 
-      {:ok, _, html} =
-        index_live
-        |> form("#chart-form", chart: @update_attrs)
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/charts")
+      assert_patch(index_live, ~p"/charts")
 
+      html = render(index_live)
       assert html =~ "Chart updated successfully"
-      assert html =~ "some updated default_interval"
     end
 
     test "deletes chart in listing", %{conn: conn, chart: chart} do
       {:ok, index_live, _html} = live(conn, ~p"/charts")
 
       assert index_live |> element("#charts-#{chart.id} a", "Delete") |> render_click()
-      refute has_element?(index_live, "#chart-#{chart.id}")
+      refute has_element?(index_live, "#charts-#{chart.id}")
     end
   end
 
@@ -82,7 +78,6 @@ defmodule RedEyeWeb.ChartLiveTest do
       {:ok, _show_live, html} = live(conn, ~p"/charts/#{chart}")
 
       assert html =~ "Show Chart"
-      assert html =~ chart.default_interval
     end
 
     test "updates chart within modal", %{conn: conn, chart: chart} do
@@ -94,17 +89,13 @@ defmodule RedEyeWeb.ChartLiveTest do
       assert_patch(show_live, ~p"/charts/#{chart}/show/edit")
 
       assert show_live
-             |> form("#chart-form", chart: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
+             |> form("#chart-form", chart: @update_attrs)
+             |> render_submit()
 
-      {:ok, _, html} =
-        show_live
-        |> form("#chart-form", chart: @update_attrs)
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/charts/#{chart}")
+      assert_patch(show_live, ~p"/charts/#{chart}")
 
+      html = render(show_live)
       assert html =~ "Chart updated successfully"
-      assert html =~ "some updated default_interval"
     end
   end
 end

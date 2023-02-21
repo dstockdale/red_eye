@@ -28,6 +28,7 @@ defmodule RedEyeWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import RedEyeWeb.ConnCase
+      import RedEye.Factory
     end
   end
 

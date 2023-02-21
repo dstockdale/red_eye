@@ -8,6 +8,20 @@ defmodule RedEye.Charts do
 
   alias RedEye.Charts.Chart
 
+  def symbol_options do
+    RedEye.MarketData.list_binance_symbols()
+    |> Enum.map(fn item ->
+      [key: item.symbol, value: item.id]
+    end)
+  end
+
+  def exchange_options do
+    [
+      [key: "Binance", value: "binance"],
+      [key: "Bitget", value: "bitget"]
+    ]
+  end
+
   def interval_options do
     [
       "15 mins": "15 mins",
@@ -28,8 +42,9 @@ defmodule RedEye.Charts do
       [%Chart{}, ...]
 
   """
-  def list_charts do
+  def list_charts(preload \\ [:binance_symbol]) do
     Repo.all(Chart)
+    |> Repo.preload(preload)
   end
 
   @doc """
@@ -46,7 +61,10 @@ defmodule RedEye.Charts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_chart!(id), do: Repo.get!(Chart, id)
+  def get_chart!(id, preload \\ [:binance_symbol]) do
+    Repo.get!(Chart, id)
+    |> Repo.preload(preload)
+  end
 
   @doc """
   Creates a chart.

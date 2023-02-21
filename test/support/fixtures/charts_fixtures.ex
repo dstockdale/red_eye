@@ -11,9 +11,7 @@ defmodule RedEye.ChartsFixtures do
     {:ok, chart} =
       attrs
       |> Enum.into(%{
-        default_interval: "some default_interval",
-        exchange: "some exchange",
-        symbol: "some symbol"
+        exchange: "some exchange"
       })
       |> RedEye.Charts.create_chart()
 

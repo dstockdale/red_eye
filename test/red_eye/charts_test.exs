@@ -1,5 +1,5 @@
 defmodule RedEye.ChartsTest do
-  use RedEye.DataCase
+  use RedEye.DataCase, async: true
 
   alias RedEye.Charts
 
@@ -8,55 +8,55 @@ defmodule RedEye.ChartsTest do
 
     import RedEye.ChartsFixtures
 
-    @invalid_attrs %{default_interval: nil, exchange: nil, symbol: nil}
+    setup do
+      binance_symbol = insert(:binance_symbol)
+      chart = insert(:chart, binance_symbol: binance_symbol)
 
-    test "list_charts/0 returns all charts" do
-      chart = chart_fixture()
+      {:ok, chart: chart, binance_symbol: binance_symbol}
+    end
+
+    test "list_charts/0 returns all charts", %{chart: chart} do
       assert Charts.list_charts() == [chart]
     end
 
-    test "get_chart!/1 returns the chart with given id" do
-      chart = chart_fixture()
+    test "get_chart!/1 returns the chart with given id", %{chart: chart} do
       assert Charts.get_chart!(chart.id) == chart
     end
 
-    test "create_chart/1 with valid data creates a chart" do
-      valid_attrs = %{default_interval: "some default_interval", exchange: "some exchange", symbol: "some symbol"}
+    test "create_chart/1 with valid data creates a chart", %{binance_symbol: binance_symbol} do
+      valid_attrs = %{
+        exchange: "bitget",
+        binance_symbol_id: binance_symbol.id
+      }
 
       assert {:ok, %Chart{} = chart} = Charts.create_chart(valid_attrs)
-      assert chart.default_interval == "some default_interval"
-      assert chart.exchange == "some exchange"
-      assert chart.symbol == "some symbol"
+      assert chart.exchange == "bitget"
     end
 
     test "create_chart/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Charts.create_chart(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Charts.create_chart(%{exchange: nil})
     end
 
-    test "update_chart/2 with valid data updates the chart" do
-      chart = chart_fixture()
-      update_attrs = %{default_interval: "some updated default_interval", exchange: "some updated exchange", symbol: "some updated symbol"}
+    test "update_chart/2 with valid data updates the chart", %{chart: chart} do
+      update_attrs = %{
+        exchange: "bitget"
+      }
 
       assert {:ok, %Chart{} = chart} = Charts.update_chart(chart, update_attrs)
-      assert chart.default_interval == "some updated default_interval"
-      assert chart.exchange == "some updated exchange"
-      assert chart.symbol == "some updated symbol"
+      assert chart.exchange == "bitget"
     end
 
-    test "update_chart/2 with invalid data returns error changeset" do
-      chart = chart_fixture()
-      assert {:error, %Ecto.Changeset{}} = Charts.update_chart(chart, @invalid_attrs)
+    test "update_chart/2 with invalid data returns error changeset", %{chart: chart} do
+      assert {:error, %Ecto.Changeset{}} = Charts.update_chart(chart, %{exchange: nil})
       assert chart == Charts.get_chart!(chart.id)
     end
 
-    test "delete_chart/1 deletes the chart" do
-      chart = chart_fixture()
+    test "delete_chart/1 deletes the chart", %{chart: chart} do
       assert {:ok, %Chart{}} = Charts.delete_chart(chart)
       assert_raise Ecto.NoResultsError, fn -> Charts.get_chart!(chart.id) end
     end
 
-    test "change_chart/1 returns a chart changeset" do
-      chart = chart_fixture()
+    test "change_chart/1 returns a chart changeset", %{chart: chart} do
       assert %Ecto.Changeset{} = Charts.change_chart(chart)
     end
   end

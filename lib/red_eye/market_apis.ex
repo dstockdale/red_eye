@@ -1,7 +1,17 @@
 defmodule RedEye.MarketApis do
-  alias RedEye.MarketApis.{BinanceSpot, BinanceSpotQueries, Timing}
+  alias RedEye.MarketApis.{BinanceSpot, BinanceSymbolReq, Timing}
   alias RedEye.MarketData
+  alias RedEye.MarketData.BinanceSpotQueries
   alias RedEye.Repo
+
+  def find_earliest_record(symbol) do
+    nineteen_ninety_nine()
+    |> BinanceSpot.fetch(symbol, "1h")
+    |> Enum.sort_by(fn s -> Enum.at(s, 0) end)
+    |> List.first()
+    |> Enum.at(0)
+    |> DateTime.from_unix!(:millisecond)
+  end
 
   def import_binance_spot_candles_from_date(
         start_date,
@@ -32,11 +42,23 @@ defmodule RedEye.MarketApis do
     |> RedEye.Repo.transaction()
   end
 
+  def import_binance_symbols do
+    BinanceSymbolReq.fetch()
+    |> BinanceSymbolReq.map()
+    |> MarketData.upsert_binance_symbols()
+  end
+
   defp exclude_inserted_timestamps(timestamps, symbol) do
     already_inserted =
       BinanceSpotQueries.existing_candles(timestamps, symbol)
       |> Repo.all()
 
     timestamps -- already_inserted
+  end
+
+  # Before crypto began...
+  defp nineteen_ninety_nine do
+    DateTime.new!(~D[1999-12-31], ~T[00:00:00.000], "Etc/UTC")
+    |> DateTime.to_unix(:millisecond)
   end
 end

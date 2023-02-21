@@ -20,7 +20,8 @@ defmodule RedEye.Application do
       RedEyeWeb.Endpoint,
       # Start a worker by calling: RedEye.Worker.start_link(arg)
       # {RedEye.Worker, arg}
-      {Oban, Application.fetch_env!(:red_eye, Oban)}
+      {Oban, Application.fetch_env!(:red_eye, Oban)},
+      RedEye.Charts.ChartListener
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

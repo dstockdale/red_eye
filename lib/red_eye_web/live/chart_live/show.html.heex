@@ -12,24 +12,18 @@
 
 <.list>
   <:item title="Exchange"><%= @chart.exchange %></:item>
-  <:item title="Symbol"><%= @chart.symbol %></:item>
-  <:item title="Default interval"><%= @chart.default_interval %></:item>
+  <:item title="Symbol"><%= @chart.binance_symbol.symbol %></:item>
 </.list>
 
 <.back navigate={~p"/charts"}>Back to charts</.back>
 
-<.modal
-  :if={@live_action == :edit}
-  id="chart-modal"
-  show
-  on_cancel={JS.patch(~p"/charts/#{@chart}")}
->
+<.modal :if={@live_action == :edit} id="chart-modal" show on_cancel={JS.patch(~p"/charts/#{@chart}")}>
   <.live_component
     module={RedEyeWeb.ChartLive.FormComponent}
     id={@chart.id}
     title={@page_title}
     action={@live_action}
     chart={@chart}
-    navigate={~p"/charts/#{@chart}"}
+    patch={~p"/charts/#{@chart}"}
   />
 </.modal>

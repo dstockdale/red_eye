@@ -7,18 +7,24 @@
   </:actions>
 </.header>
 
-<.table id="charts" rows={@charts} row_click={&JS.navigate(~p"/charts/#{&1}")}>
-  <:col :let={chart} label="Exchange"><%= chart.exchange %></:col>
-  <:col :let={chart} label="Symbol"><%= chart.symbol %></:col>
-  <:col :let={chart} label="Default interval"><%= chart.default_interval %></:col>
-  <:action :let={chart}>
+<.table
+  id="charts"
+  rows={@streams.charts}
+  row_click={fn {_id, chart} -> JS.navigate(~p"/charts/#{chart}") end}
+>
+  <:col :let={{_id, chart}} label="Exchange"><%= chart.exchange %></:col>
+  <:col :let={{_id, chart}} label="Symbol"><%= chart.binance_symbol.symbol %></:col>
+  <:action :let={{_id, chart}}>
     <div class="sr-only">
       <.link navigate={~p"/charts/#{chart}"}>Show</.link>
     </div>
     <.link patch={~p"/charts/#{chart}/edit"}>Edit</.link>
   </:action>
-  <:action :let={chart}>
-    <.link phx-click={JS.push("delete", value: %{id: chart.id})} data-confirm="Are you sure?">
+  <:action :let={{id, chart}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: chart.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
       Delete
     </.link>
   </:action>
@@ -36,6 +42,6 @@
     title={@page_title}
     action={@live_action}
     chart={@chart}
-    navigate={~p"/charts"}
+    patch={~p"/charts"}
   />
 </.modal>
