@@ -6,6 +6,7 @@ defmodule RedEye.Charts.Chart do
   @foreign_key_type :binary_id
   schema "charts" do
     field :exchange, :string
+    field :earliest_timestamp, :utc_datetime
     belongs_to :binance_symbol, RedEye.MarketData.BinanceSymbol
 
     timestamps()

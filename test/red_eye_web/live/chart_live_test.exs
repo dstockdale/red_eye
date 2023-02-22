@@ -9,7 +9,6 @@ defmodule RedEyeWeb.ChartLiveTest do
   @update_attrs %{
     exchange: "bitget"
   }
-  @invalid_attrs %{exchange: "ftx"}
 
   defp create_chart(_) do
     binance_symbol = insert(:binance_symbol)

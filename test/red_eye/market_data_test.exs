@@ -6,8 +6,6 @@ defmodule RedEye.MarketDataTest do
   describe "binance_spot_candles" do
     alias RedEye.MarketData.BinanceSpotCandle
 
-    import RedEye.MarketDataFixtures
-
     @invalid_attrs %{
       close: nil,
       high: nil,

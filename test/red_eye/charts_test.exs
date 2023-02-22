@@ -1,12 +1,10 @@
 defmodule RedEye.ChartsTest do
-  use RedEye.DataCase, async: true
+  use RedEye.DataCase
 
   alias RedEye.Charts
 
   describe "charts" do
     alias RedEye.Charts.Chart
-
-    import RedEye.ChartsFixtures
 
     setup do
       binance_symbol = insert(:binance_symbol)
