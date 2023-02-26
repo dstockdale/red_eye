@@ -82,6 +82,7 @@ defmodule RedEye.Charts do
     %Chart{}
     |> Chart.changeset(attrs)
     |> Repo.insert()
+    |> handle_changes()
     |> broadcast(:chart_created)
   end
 
@@ -101,6 +102,7 @@ defmodule RedEye.Charts do
     chart
     |> Chart.changeset(attrs)
     |> Repo.update()
+    |> handle_changes()
     |> broadcast(:chart_updated)
   end
 
@@ -119,6 +121,18 @@ defmodule RedEye.Charts do
   def delete_chart(%Chart{} = chart) do
     Repo.delete(chart)
   end
+
+  defp handle_changes({:ok, chart}) do
+    RedEye.Workers.ChartChangesWorker.new(%{
+      chart_id: chart.id,
+      earliest_timestamp: chart.earliest_timestamp
+    })
+    |> Oban.insert()
+
+    {:ok, chart}
+  end
+
+  defp handle_changes({:error, _reason} = error), do: error
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking chart changes.

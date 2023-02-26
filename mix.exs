@@ -55,7 +55,9 @@ defmodule RedEye.MixProject do
       {:oban, "~> 2.13"},
       {:ecto_timescaledb, "~> 0.10.0"},
       {:cachex, "~> 3.6"},
-      {:ex_machina, "~> 2.7.0", only: :test}
+      {:ex_machina, "~> 2.7.0", only: :test},
+      {:websockex, "~> 0.4.3"},
+      {:explorer, "~> 0.5.0"}
     ]
   end
 

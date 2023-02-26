@@ -7,23 +7,48 @@ defmodule RedEye.Charts.ChartQueries do
   import Ecto.Query.Timescaledb
   # alias RedEye.Repo
 
+  alias RedEye.Charts.Chart
   alias RedEye.MarketData.BinanceSpotCandle
+
+  def most_recent_candle(symbol) do
+    from(s in BinanceSpotCandle,
+      where: [symbol: ^symbol],
+      select: max(s.timestamp)
+    )
+  end
+
+  def symbols_for_candles do
+    from(s in BinanceSpotCandle,
+      select: s.symbol,
+      distinct: s.symbol
+    )
+  end
 
   def binance_spot_time_bucket(symbol, period \\ "4 hour") do
     interval = parse_interval(period)
 
     from(s in BinanceSpotCandle,
-      select: [
-        time_bucket(^interval, "timestamp", "bucket"),
-        s.symbol,
-        as(fragment("FIRST(open, timestamp)"), open),
-        as(max(s.high), high),
-        as(min(s.low), low),
-        as(fragment("LAST(close, timestamp)"), close)
-      ],
       where: [symbol: ^symbol],
-      group_by: [fragment("bucket"), s.symbol],
-      order_by: [desc: fragment("bucket")]
+      group_by: [fragment("time")],
+      order_by: [asc: fragment("time")],
+      select: %{
+        time:
+          fragment(
+            "cast(extract(epoch from time_bucket(?, timestamp)) AS BIGINT) AS time",
+            ^interval
+          ),
+        open: as(fragment("FIRST(open, timestamp)"), open),
+        high: as(max(s.high), high),
+        low: as(min(s.low), low),
+        close: as(fragment("LAST(close, timestamp)"), close),
+        volume: as(sum(s.volume), volume)
+      }
+    )
+  end
+
+  def list_charts_with_counts do
+    from(c in Chart,
+      select: [c]
     )
   end
 

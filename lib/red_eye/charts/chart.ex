@@ -15,7 +15,7 @@ defmodule RedEye.Charts.Chart do
   @doc false
   def changeset(chart, attrs) do
     chart
-    |> cast(attrs, [:exchange, :binance_symbol_id])
+    |> cast(attrs, [:exchange, :binance_symbol_id, :earliest_timestamp])
     |> validate_required([:exchange])
     |> validate_inclusion(:exchange, ~w(binance bitget))
   end

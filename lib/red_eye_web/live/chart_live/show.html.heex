@@ -1,23 +1,33 @@
-<.header>
-  Chart <%= @chart.id %>
-  <:subtitle>This is a chart record from your database.</:subtitle>
-  <:actions>
-    <.link patch={~p"/charts/#{@chart}/show/edit"} phx-click={JS.push_focus()}>
-      <.button>Edit chart</.button>
+<header class="flex items-center gap-4 mb-8">
+  <h1 class="text-lg font-bold leading-8">
+    Chart: <%= @chart.exchange %> / <%= @chart.binance_symbol.symbol %>
+  </h1>
+  <p>
+    <.link
+      navigate={~p"/charts"}
+      class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+    >
+      <Heroicons.arrow_left solid class="inline w-3 h-3 stroke-current" /> Back to charts
     </.link>
-  </:actions>
-</.header>
+  </p>
+</header>
 
-<div id="lightweight-chart" phx-update="ignore"></div>
+<section id="lightweight-chart" phx-update="ignore">
+  <div
+    id="candleStickChart"
+    class="min-h-[400px] min-w-[600px]"
+    phx-hook="CandleStickChart"
+    data-chart-data={Jason.encode!(@chart_data)}
+  >
+  </div>
+</section>
 
-<.list>
-  <:item title="Exchange"><%= @chart.exchange %></:item>
-  <:item title="Symbol"><%= @chart.binance_symbol.symbol %></:item>
-</.list>
-
-<.back navigate={~p"/charts"}>Back to charts</.back>
-
-<.modal :if={@live_action == :edit} id="chart-modal" show on_cancel={JS.patch(~p"/charts/#{@chart}")}>
+<.modal
+  :if={@live_action == :edit}
+  id="chart-modal"
+  show
+  on_cancel={JS.patch(~p"/charts/#{@chart}")}
+>
   <.live_component
     module={RedEyeWeb.ChartLive.FormComponent}
     id={@chart.id}

@@ -22,6 +22,20 @@ defmodule RedEye.MarketData do
   end
 
   @doc """
+  Returns the list of high, low, open, close values.
+
+  ## Examples
+
+      iex> list_binance_candles_for_chart()
+      [%{time: ~N[]}, ...]
+
+  """
+  def list_binance_candles_for_chart(symbol, period \\ "4 hours") do
+    RedEye.Charts.ChartQueries.binance_spot_time_bucket(symbol, period)
+    |> Repo.all()
+  end
+
+  @doc """
   Creates a binance_spot_candle.
 
   ## Examples
@@ -73,6 +87,16 @@ defmodule RedEye.MarketData do
   """
   def change_binance_spot_candle(%BinanceSpotCandle{} = binance_spot_candle, attrs \\ %{}) do
     BinanceSpotCandle.changeset(binance_spot_candle, attrs)
+  end
+
+  def find_binance_candle_symbols do
+    RedEye.Charts.ChartQueries.symbols_for_candles()
+    |> Repo.all()
+  end
+
+  def find_most_recent_binance_spot_candle(symbol) do
+    RedEye.Charts.ChartQueries.most_recent_candle(symbol)
+    |> Repo.one()
   end
 
   alias RedEye.MarketData.BinanceSymbol
