@@ -12,10 +12,10 @@
   rows={@streams.charts}
   row_click={fn {_id, chart} -> JS.navigate(~p"/charts/#{chart}") end}
 >
-  <:col :let={{_id, chart}} label="Exchange"><%= chart.exchange %></:col>
+  <:col :let={{_id, chart}} label="Exchange"><%= String.capitalize(chart.exchange) %></:col>
   <:col :let={{_id, chart}} label="Symbol"><%= chart.binance_symbol.symbol %></:col>
   <:col :let={{_id, chart}} label="Starting Date">
-    <%= chart.earliest_timestamp |> DateTime.to_date() %>
+    <%= chart.earliest_timestamp %>
   </:col>
 
   <:action :let={{_id, chart}}>

@@ -32,7 +32,7 @@ defmodule RedEye.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.0-rc.3", override: true},
+      {:phoenix, "~> 1.7.0"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
@@ -57,7 +57,8 @@ defmodule RedEye.MixProject do
       {:cachex, "~> 3.6"},
       {:ex_machina, "~> 2.7.0", only: :test},
       {:websockex, "~> 0.4.3"},
-      {:explorer, "~> 0.5.0"}
+      {:explorer, "~> 0.5.0"},
+      {:number, "~> 1.0.3"}
     ]
   end
 

@@ -70,7 +70,7 @@ defmodule RedEyeWeb.CoreComponents do
               phx-window-keydown={hide_modal(@on_cancel, @id)}
               phx-key="escape"
               phx-click-away={hide_modal(@on_cancel, @id)}
-              class="relative hidden transition bg-white shadow-lg rounded-2xl p-14 shadow-zinc-700/10 ring-1 ring-zinc-700/10"
+              class="relative hidden transition shadow-lg dark:bg-zinc-700 rounded-2xl p-14 shadow-zinc-700/10 ring-1 ring-zinc-700/10"
             >
               <div class="absolute top-6 right-5">
                 <button
@@ -84,13 +84,16 @@ defmodule RedEyeWeb.CoreComponents do
               </div>
               <div id={"#{@id}-content"}>
                 <header :if={@title != []}>
-                  <h1 id={"#{@id}-title"} class="text-lg font-semibold leading-8 text-zinc-800">
+                  <h1
+                    id={"#{@id}-title"}
+                    class="text-lg font-semibold leading-8 text-zinc-800 dark:text-white"
+                  >
                     <%= render_slot(@title) %>
                   </h1>
                   <p
                     :if={@subtitle != []}
                     id={"#{@id}-description"}
-                    class="mt-2 text-sm leading-6 text-zinc-600"
+                    class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-200"
                   >
                     <%= render_slot(@subtitle) %>
                   </p>
@@ -109,7 +112,7 @@ defmodule RedEyeWeb.CoreComponents do
                   <.link
                     :for={cancel <- @cancel}
                     phx-click={hide_modal(@on_cancel, @id)}
-                    class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+                    class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700 dark:text-zinc-200"
                   >
                     <%= render_slot(cancel) %>
                   </.link>
@@ -227,7 +230,7 @@ defmodule RedEyeWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class="mt-10 space-y-8 bg-white dark:bg-zinc-700">
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="flex items-center justify-between gap-6 mt-2">
           <%= render_slot(action, f) %>
@@ -341,7 +344,7 @@ defmodule RedEyeWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-zinc-500 focus:border-zinc-500 sm:text-sm"
+        class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-zinc-700 focus:outline-none focus:ring-zinc-500 focus:border-zinc-500 sm:text-sm"
         multiple={@multiple}
         {@rest}
       >
@@ -405,7 +408,7 @@ defmodule RedEyeWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
+    <label for={@for} class="block text-sm font-semibold leading-6 dark:text-zinc-100">
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -438,10 +441,10 @@ defmodule RedEyeWeb.CoreComponents do
     ~H"""
     <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
       <div>
-        <h1 class="text-lg font-semibold leading-8 text-zinc-800">
+        <h1 class="text-lg font-semibold leading-8 text-zinc-800 dark:text-zinc-100">
           <%= render_slot(@inner_block) %>
         </h1>
-        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
+        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-200">
           <%= render_slot(@subtitle) %>
         </p>
       </div>
@@ -483,27 +486,26 @@ defmodule RedEyeWeb.CoreComponents do
 
     ~H"""
     <div class="px-4 overflow-y-auto sm:overflow-visible sm:px-0">
-      <table class="mt-11 w-[40rem] sm:w-full">
-        <thead class="text-left text-[0.8125rem] leading-6 text-zinc-500">
+      <table class="mt-11 w-[40rem] sm:w-full dark:bg-slate-900">
+        <thead class="text-left text-[0.8125rem] leading-6 text-zinc-500 dark:text-zinc-200">
           <tr>
-            <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal"><%= col[:label] %></th>
-            <th class="relative p-0 pb-4"><span class="sr-only"><%= gettext("Actions") %></span></th>
+            <th :for={col <- @col} class="p-4 font-normal"><%= col[:label] %></th>
+            <th class="relative p-4"><span class="sr-only"><%= gettext("Actions") %></span></th>
           </tr>
         </thead>
         <tbody
           id={@id}
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
-          class="relative text-sm leading-6 border-t divide-y divide-zinc-100 border-zinc-200 text-zinc-700"
+          class="relative text-sm leading-6 border-t divide-y divide-zinc-100 border-zinc-200 text-zinc-700 dark:text-zinc-200 dark:divide-zinc-700 dark:border-zinc-700"
         >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
+          <tr :for={row <- @rows} id={@row_id && @row_id.(row)}>
             <td
               :for={{col, i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
               class={["relative p-0", @row_click && "hover:cursor-pointer"]}
             >
-              <div class="block py-4 pr-6">
-                <span class="absolute right-0 -inset-y-px -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
-                <span class={["relative", i == 0 && "font-semibold text-zinc-900"]}>
+              <div class="block p-4 font-semibold text-zinc-900 dark:text-zinc-100">
+                <span class={["relative", i == 0 && ""]}>
                   <%= render_slot(col, @row_item.(row)) %>
                 </span>
               </div>
@@ -513,7 +515,7 @@ defmodule RedEyeWeb.CoreComponents do
                 <span class="absolute left-0 -inset-y-px -right-4 group-hover:bg-zinc-50 sm:rounded-r-xl" />
                 <span
                   :for={action <- @action}
-                  class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+                  class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700 dark:text-zinc-100"
                 >
                   <%= render_slot(action, @row_item.(row)) %>
                 </span>

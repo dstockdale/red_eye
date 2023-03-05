@@ -20,26 +20,26 @@ Hooks.CandleStickChart = {
         bottom: 0.4,
       },
     });
-    const volumeSeries = chart.addHistogramSeries({
-      color: "#26a69a",
-      priceFormat: {
-        type: "volume",
-      },
-      priceScaleId: "", // set as an overlay by setting a blank priceScaleId
-      scaleMargins: {
-        top: 0.7, // highest point of the series will be 70% away from the top
-        bottom: 0,
-      },
-    });
-    volumeSeries.priceScale().applyOptions({
-      scaleMargins: {
-        top: 0.7, // highest point of the series will be 70% away from the top
-        bottom: 0,
-      },
-    });
+    // const volumeSeries = chart.addHistogramSeries({
+    //   color: "#26a69a",
+    //   priceFormat: {
+    //     type: "volume",
+    //   },
+    //   priceScaleId: "", // set as an overlay by setting a blank priceScaleId
+    //   scaleMargins: {
+    //     top: 0.7, // highest point of the series will be 70% away from the top
+    //     bottom: 0,
+    //   },
+    // });
+    // volumeSeries.priceScale().applyOptions({
+    //   scaleMargins: {
+    //     top: 0.7, // highest point of the series will be 70% away from the top
+    //     bottom: 0,
+    //   },
+    // });
 
     candleSeries.setData(data);
-    volumeSeries.setData(volumeData);
+    // volumeSeries.setData(volumeData);
     chart.timeScale().fitContent();
   },
 };

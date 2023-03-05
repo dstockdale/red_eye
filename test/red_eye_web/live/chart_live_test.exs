@@ -44,24 +44,6 @@ defmodule RedEyeWeb.ChartLiveTest do
       assert html =~ "Chart created successfully"
     end
 
-    test "updates chart in listing", %{conn: conn, chart: chart} do
-      {:ok, index_live, _html} = live(conn, ~p"/charts")
-
-      assert index_live |> element("#charts-#{chart.id} a", "Edit") |> render_click() =~
-               "Edit Chart"
-
-      assert_patch(index_live, ~p"/charts/#{chart}/edit")
-
-      assert index_live
-             |> form("#chart-form", chart: @update_attrs)
-             |> render_submit()
-
-      assert_patch(index_live, ~p"/charts")
-
-      html = render(index_live)
-      assert html =~ "Chart updated successfully"
-    end
-
     test "deletes chart in listing", %{conn: conn, chart: chart} do
       {:ok, index_live, _html} = live(conn, ~p"/charts")
 

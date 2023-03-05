@@ -15,6 +15,7 @@ defmodule RedEye.MarketData.BinanceStream do
 
   def handle_ping({:ping, msg}, state) do
     Logger.info("Ping frame received replying with Pong")
+    Logger.info(IO.inspect(msg))
 
     {:reply, {:pong, msg}, state}
   end
@@ -55,30 +56,69 @@ defmodule RedEye.MarketData.BinanceStream do
     WebSockex.send_frame(client, {:text, frame})
   end
 
-  def handle_frame({type, msg}, state) do
-    IO.puts("Received Message - Type: #{inspect(type)} -- Message: #{inspect(msg)}")
+  def handle_frame({:text, msg}, state) do
+    case Jason.decode(msg) do
+      {:ok, event} -> handle_event(event)
+      {:error, _} -> Logger.error("Unable to parse msg: #{msg}")
+    end
+
     {:ok, state}
   end
-
-  # def handle_frame({type, msg}, state) do
-  #   IO.inspect(type)
-
-  #   case Jason.decode(msg) do
-  #     {:ok, event} -> process_event(event)
-  #     {:error, _} -> Logger.error("Unable to parse msg: #{msg}")
-  #   end
-
-  #   {:ok, state}
-  # end
 
   def handle_cast({:send, {type, msg} = frame}, state) do
     IO.puts("Sending #{type} frame with payload: #{msg}")
     {:reply, frame, state}
   end
 
-  # defp process_event(event) do
-  #   IO.inspect(event)
-  # end
+  @doc """
+    {
+      "e": "24hrTicker",  // Event type
+      "E": 1672515782136, // Event time
+      "s": "BNBBTC",      // Symbol
+      "p": "0.0015",      // Price change
+      "P": "250.00",      // Price change percent
+      "w": "0.0018",      // Weighted average price
+      "x": "0.0009",      // First trade(F)-1 price (first trade before the 24hr rolling window)
+      "c": "0.0025",      // Last price
+      "Q": "10",          // Last quantity
+      "b": "0.0024",      // Best bid price
+      "B": "10",          // Best bid quantity
+      "a": "0.0026",      // Best ask price
+      "A": "100",         // Best ask quantity
+      "o": "0.0010",      // Open price
+      "h": "0.0025",      // High price
+      "l": "0.0010",      // Low price
+      "v": "10000",       // Total traded base asset volume
+      "q": "18",          // Total traded quote asset volume
+      "O": 0,             // Statistics open time
+      "C": 86400000,      // Statistics close time
+      "F": 0,             // First trade ID
+      "L": 18150,         // Last trade Id
+      "n": 18151          // Total number of trades
+    }
+
+  """
+  def handle_event(%{
+        "e" => "24hrTicker",
+        "s" => symbol,
+        "p" => price_change,
+        "P" => price_change_percent,
+        "c" => last_price
+      }) do
+    %{
+      "type" => "24hrTicker",
+      symbol => %{
+        price_change: price_change,
+        price_change_percent: price_change_percent,
+        last_price: last_price
+      }
+    }
+    |> broadcast(:ticker)
+  end
+
+  def handle_event(event) do
+    Logger.info("Incoming event: #{inspect(event)}")
+  end
 
   def handle_disconnect(%{reason: {:local, reason}}, state) do
     Logger.info("Local close with reason: #{inspect(reason)}")
@@ -86,6 +126,16 @@ defmodule RedEye.MarketData.BinanceStream do
   end
 
   def handle_disconnect(disconnect_map, state) do
+    Logger.info("Disconnected: #{inspect(disconnect_map)}")
+    Logger.info("Disconnected state: #{inspect(state)}")
     super(disconnect_map, state)
+  end
+
+  defp broadcast(event, type) do
+    Phoenix.PubSub.broadcast(
+      RedEye.PubSub,
+      "charts",
+      {event, type}
+    )
   end
 end
