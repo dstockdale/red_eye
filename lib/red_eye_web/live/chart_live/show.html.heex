@@ -1,17 +1,15 @@
-<header class="flex items-center gap-4 mb-8">
-  <h1 class="text-lg font-bold leading-8 dark:text-white">
-    Chart: <%= String.capitalize(@chart.exchange) %> / <%= @chart.binance_symbol.symbol %>
-    <span class="font-mono"><%= Number.Currency.number_to_currency(@live_price) %></span>
-  </h1>
+<.header>
+  Chart: <%= String.capitalize(@chart.exchange) %> / <%= @chart.binance_symbol.symbol %>
+  <span class="font-mono"><%= Number.Currency.number_to_currency(@live_price) %></span>
   <p>
     <.link
       navigate={~p"/charts"}
       class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700 dark:text-slate-400"
     >
-      <Heroicons.arrow_left solid class="inline w-3 h-3 stroke-current" /> Back to charts
+      &lt; Back to charts
     </.link>
   </p>
-</header>
+</.header>
 
 <section id="lightweight-chart" phx-update="ignore">
   <div

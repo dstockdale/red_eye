@@ -1,16 +1,18 @@
-<main class="p-4">
-  <.flash kind={:info} title="Success!" flash={@flash} />
-  <.flash kind={:error} title="Error!" flash={@flash} />
-  <.flash
-    id="disconnected"
-    kind={:error}
-    title="We can't find the internet"
-    close={false}
-    autoshow={false}
-    phx-disconnected={show("#disconnected")}
-    phx-connected={hide("#disconnected")}
-  >
-    Attempting to reconnect <Heroicons.arrow_path class="inline w-3 h-3 ml-1 animate-spin" />
-  </.flash>
-  <%= @inner_content %>
-</main>
+<div class="flex flex-col">
+  <.flash_group flash={@flash} />
+  <header class="border-b app-header border-slate-300 bg-slate-100">
+    <.red_eye_logo />
+  </header>
+  <main class="flex">
+    <aside class="flex-shrink-0 w-22">
+      Watchlist
+      Deals
+    </aside>
+    <article class="flex-grow">
+      <%= @inner_content %>
+    </article>
+  </main>
+</div>
+<footer class="fixed bottom-0 left-0 w-screen bg-slate-900 text-slate-50 h-36">
+  <b>Deals:</b>
+</footer>

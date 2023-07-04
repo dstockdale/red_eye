@@ -8,8 +8,8 @@ defmodule RedEye.Charts do
 
   alias RedEye.Charts.Chart
 
-  def symbol_options do
-    RedEye.MarketData.list_binance_symbols()
+  def symbol_options(string \\ "") when is_binary(string) do
+    RedEye.MarketData.list_binance_symbols(string)
     |> Enum.map(fn item ->
       [key: item.symbol, value: item.id]
     end)

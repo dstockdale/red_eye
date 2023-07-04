@@ -19,13 +19,16 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input
-          field={@form[:exchange]}
-          type="select"
-          options={RedEye.Charts.exchange_options()}
-          label="Exchange"
+        <.input field={@form[:exchange]} type="select" options={@exchanges} label="Exchange" />
+
+        <.live_select
+          field={@form[:binance_symbol_id]}
+          mode={:single}
+          label="Symbol"
+          options={[]}
+          phx-target={@myself}
         />
-        <.input field={@form[:binance_symbol_id]} type="select" options={@symbols} label="Symbol" />
+
         <:actions>
           <.button phx-disable-with="Saving...">Save Chart</.button>
         </:actions>
@@ -37,12 +40,11 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
   @impl true
   def update(%{chart: chart} = assigns, socket) do
     changeset = Charts.change_chart(chart)
-    symbols = Charts.symbol_options()
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(symbols: symbols)
+     |> assign_new(:exchanges, fn -> RedEye.Charts.exchange_options() end)
      |> assign_form(changeset)}
   end
 
@@ -58,6 +60,15 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
 
   def handle_event("save", %{"chart" => chart_params}, socket) do
     save_chart(socket, socket.assigns.action, chart_params)
+  end
+
+  @impl true
+  def handle_event("live_select_change", %{"text" => text, "id" => live_select_id}, socket) do
+    options = RedEye.MarketData.search_binance_symbols(text)
+
+    send_update(LiveSelect.Component, id: live_select_id, options: options)
+
+    {:noreply, socket}
   end
 
   defp save_chart(socket, :edit, chart_params) do

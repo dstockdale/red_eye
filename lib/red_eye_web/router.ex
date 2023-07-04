@@ -5,7 +5,7 @@ defmodule RedEyeWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, {RedEyeWeb.Layouts, :root}
+    plug :put_root_layout, html: {RedEyeWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -19,8 +19,8 @@ defmodule RedEyeWeb.Router do
 
     get "/", PageController, :home
     live "/charts", ChartLive.Index, :index
-    live "/charts/new", ChartLive.Index, :new
-    live "/charts/:id/edit", ChartLive.Index, :edit
+    live "/charts/new", ChartLive.New, :new
+    live "/charts/:id/edit", ChartLive.Edit, :edit
 
     live "/charts/:id", ChartLive.Show, :show
     live "/charts/:id/show/edit", ChartLive.Show, :edit

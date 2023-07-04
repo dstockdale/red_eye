@@ -2,40 +2,10 @@ defmodule RedEyeWeb.ChartLive.Index do
   use RedEyeWeb, :live_view
 
   alias RedEye.Charts
-  alias RedEye.Charts.Chart
 
   @impl true
   def mount(_params, _session, socket) do
     {:ok, stream(socket, :charts, Charts.list_charts([:binance_symbol]))}
-  end
-
-  @impl true
-  def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
-  end
-
-  defp apply_action(socket, :edit, %{"id" => id}) do
-    socket
-    |> assign(:page_title, "Edit Chart")
-    |> assign(:chart, Charts.get_chart!(id))
-  end
-
-  defp apply_action(socket, :new, _params) do
-    socket
-    |> assign(:page_title, "New Chart")
-    |> assign(:chart, %Chart{})
-  end
-
-  defp apply_action(socket, :index, _params) do
-    socket
-    |> assign(:page_title, "Listing Charts")
-    |> assign(:chart, nil)
-  end
-
-  @impl true
-  def handle_info({RedEyeWeb.ChartLive.FormComponent, {:saved, chart}}, socket) do
-    chart = Charts.get_chart!(chart.id)
-    {:noreply, stream_insert(socket, :charts, chart)}
   end
 
   @impl true

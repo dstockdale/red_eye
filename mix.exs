@@ -32,18 +32,17 @@ defmodule RedEye.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.0"},
+      {:phoenix, "~> 1.7.6"},
       {:phoenix_ecto, "~> 4.4"},
-      {:ecto_sql, "~> 3.6"},
+      {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.18.14"},
-      {:heroicons, "~> 0.5"},
+      {:phoenix_live_view, "~> 0.19.3"},
       {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.7.2"},
-      {:esbuild, "~> 0.5", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.1.8", runtime: Mix.env() == :dev},
+      {:phoenix_live_dashboard, "~> 0.8.0"},
+      {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:swoosh, "~> 1.3"},
       {:finch, "~> 0.13"},
       {:telemetry_metrics, "~> 0.6"},
@@ -58,7 +57,9 @@ defmodule RedEye.MixProject do
       {:ex_machina, "~> 2.7.0", only: :test},
       {:websockex, "~> 0.4.3"},
       {:explorer, "~> 0.5.0"},
-      {:number, "~> 1.0.3"}
+      {:number, "~> 1.0.3"},
+      {:mint_web_socket, "~> 1.0"},
+      {:live_select, "~> 1.1"}
     ]
   end
 

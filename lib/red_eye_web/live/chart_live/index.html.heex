@@ -1,7 +1,7 @@
 <.header>
-  Listing Charts
+  Monitoring Symbols to backtest / trade
   <:actions>
-    <.link patch={~p"/charts/new"}>
+    <.link navigate={~p"/charts/new"}>
       <.button>New Chart</.button>
     </.link>
   </:actions>
@@ -22,7 +22,7 @@
     <div class="sr-only">
       <.link navigate={~p"/charts/#{chart}"}>Show</.link>
     </div>
-    <.link patch={~p"/charts/#{chart}/edit"}>Edit</.link>
+    <.link navigate={~p"/charts/#{chart}/edit"}>Edit</.link>
   </:action>
   <:action :let={{id, chart}}>
     <.link

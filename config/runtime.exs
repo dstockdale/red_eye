@@ -63,6 +63,16 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  # if Phoenix.Endpoint.server?(:red_eye, RedEye.Endpoint) do
+  #   config :red_eye, Oban,
+  #     plugins: [
+  #       {Oban.Plugins.Cron,
+  #        crontab: [
+  #          {"* * * * *", RedEye.Workers.MinuteWorker}
+  #        ]}
+  #     ]
+  # end
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

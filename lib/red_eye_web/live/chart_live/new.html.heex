@@ -1,0 +1,20 @@
+<.header>
+  <p>
+    <.link
+      navigate={~p"/charts"}
+      class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700 dark:text-slate-400"
+    >
+      &lt; Back to charts
+    </.link>
+  </p>
+</.header>
+
+<section id="new-symbol">
+  <.live_component
+    module={RedEyeWeb.ChartLive.FormComponent}
+    id={:new}
+    title={@page_title}
+    action={:new}
+    chart={@chart}
+  />
+</section>

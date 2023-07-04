@@ -1,0 +1,104 @@
+# Gann Swing Data
+
+```elixir
+Mix.install([
+  {:explorer, "~> 0.5.0"},
+  {:kino, "~> 0.8.0"}
+])
+```
+
+## Section
+
+```elixir
+alias Explorer.DataFrame
+alias Explorer.Series
+require DataFrame, as: DF
+
+csv_file = Path.expand("btc-4hr-candles.csv", __DIR__)
+df = DataFrame.from_csv!(csv_file)
+previous_highs = Series.shift(df[:high], 1)
+previous_lows = Series.shift(df[:low], 1)
+previous_closes = Series.shift(df[:close], 1)
+nil_previous_highs = Explorer.Series.is_nil(previous_highs)
+
+df =
+  df
+  |> DF.put(:previous_high, previous_highs)
+  |> DF.put(:previous_low, previous_lows)
+  |> DF.put(:previous_close, previous_closes)
+  |> DF.put(:nil_previous_high, nil_previous_highs)
+  |> DF.mutate_with(fn item ->
+    {type, swing_value} =
+      cond do
+        # item["nil_previous_high"] ->
+        #   {"op", item["nil_previous_high"]}
+        # !item["nil_previous_high"] ->
+        #   {"eg", item["nil_previous_high"]}
+
+        # item["high"] > item["previous_high"] && item["low"] > item["previous_low"] ->
+        #   {"hh", item["high"]}
+        # item["high"] < item["previous_high"] && item["low"] < item["previous_low"] ->
+        #   {"ll", item["low"]}
+        # item["high"] > item["previous_high"] && item["low"] < item["previous_low"] ->
+        #   {"ob", item["high"]}
+        true ->
+          {"ignore", 0}
+      end
+
+    [swing_value: swing_value, type: type]
+  end)
+
+# |> DF.group_by("time")
+# |> DF.to_rows()
+# |> Enum.group_by(fn item -> item["time"] end)
+```
+
+```elixir
+defmodule GannSwing do
+  defstruct high: 0, low: 0
+end
+
+defmodule GannSwingType do
+  def collection(list, offset \\ 1) when is_list(list) do
+    list
+    |> Enum.with_index(fn current, index ->
+      key = get_key(index, offset)
+      previous = Enum.at(list, key)
+
+      type(current, previous)
+    end)
+  end
+
+  def type(current, previous) do
+    cond do
+      current.high > previous.high && current.low > previous.low ->
+        {:hh, current.high}
+
+      current.high == previous.high && current.low == previous.low ->
+        {:ll, current.low}
+
+      current.high < previous.high && current.low < previous.low ->
+        {:ll, current.low}
+
+      current.high > previous.high && current.low < previous.low ->
+        {:ob, current.high}
+
+      true ->
+        nil
+    end
+  end
+
+  defp get_key(0, _offset), do: 0
+
+  defp get_key(index, offset) do
+    index - offset
+  end
+end
+
+swing = struct!(GannSwing, %{high: 1.0, low: 0.8})
+swing2 = struct!(GannSwing, %{high: 1.2, low: 0.9})
+swing3 = struct!(GannSwing, %{high: 0.8, low: 0.7})
+swings = [swing, swing2, swing3]
+
+GannSwingType.collection(swings)
+```

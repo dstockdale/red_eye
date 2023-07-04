@@ -118,4 +118,24 @@ defmodule RedEye.MarketData do
 
     Repo.all(query)
   end
+
+  def search_binance_symbols(search \\ "") do
+    search = "%#{search}%"
+
+    query =
+      from b in BinanceSymbol,
+        select: [b.symbol, b.id],
+        where: ilike(b.symbol, ^search),
+        order_by: b.symbol
+
+    Repo.all(query)
+    |> list_to_tuples()
+  end
+
+  def list_to_tuples(list) when is_list(list) do
+    list
+    |> Enum.map(fn item ->
+      List.to_tuple(item)
+    end)
+  end
 end

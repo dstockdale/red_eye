@@ -2,12 +2,17 @@ defmodule RedEyeWeb.CoreComponents do
   @moduledoc """
   Provides core UI components.
 
-  The components in this module use Tailwind CSS, a utility-first CSS framework.
-  See the [Tailwind CSS documentation](https://tailwindcss.com) to learn how to
-  customize the generated components in this module.
+  At the first glance, this module may seem daunting, but its goal is
+  to provide some core building blocks in your application, such modals,
+  tables, and forms. The components are mostly markup and well documented
+  with doc strings and declarative assigns. You may customize and style
+  them in any way you want, based on your application growth and needs.
 
-  Icons are provided by [heroicons](https://heroicons.com), using the
-  [heroicons_elixir](https://github.com/mveytsman/heroicons_elixir) project.
+  The default components use Tailwind CSS, a utility-first CSS framework.
+  See the [Tailwind CSS documentation](https://tailwindcss.com) to learn
+  how to customize them or feel free to swap in another framework altogether.
+
+  Icons are provided by [heroicons](https://heroicons.com). See `icon/1` for usage.
   """
   use Phoenix.Component
 
@@ -20,30 +25,21 @@ defmodule RedEyeWeb.CoreComponents do
   ## Examples
 
       <.modal id="confirm-modal">
-        Are you sure?
-        <:confirm>OK</:confirm>
-        <:cancel>Cancel</:cancel>
+        This is a modal.
       </.modal>
 
-  JS commands may be passed to the `:on_cancel` and `on_confirm` attributes
-  for the caller to react to each button press, for example:
+  JS commands may be passed to the `:on_cancel` to configure
+  the closing/cancel event, for example:
 
-      <.modal id="confirm" on_confirm={JS.push("delete")} on_cancel={JS.navigate(~p"/posts")}>
-        Are you sure you?
-        <:confirm>OK</:confirm>
-        <:cancel>Cancel</:cancel>
+      <.modal id="confirm" on_cancel={JS.navigate(~p"/posts")}>
+        This is another modal.
       </.modal>
+
   """
   attr :id, :string, required: true
   attr :show, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
-  attr :on_confirm, JS, default: %JS{}
-
   slot :inner_block, required: true
-  slot :title
-  slot :subtitle
-  slot :confirm
-  slot :cancel
 
   def modal(assigns) do
     ~H"""
@@ -51,6 +47,7 @@ defmodule RedEyeWeb.CoreComponents do
       id={@id}
       phx-mounted={@show && show_modal(@id)}
       phx-remove={hide_modal(@id)}
+      data-cancel={JS.exec(@on_cancel, "phx-remove")}
       class="relative z-50 hidden"
     >
       <div id={"#{@id}-bg"} class="fixed inset-0 transition-opacity bg-zinc-50/90" aria-hidden="true" />
@@ -66,57 +63,23 @@ defmodule RedEyeWeb.CoreComponents do
           <div class="w-full max-w-3xl p-4 sm:p-6 lg:py-8">
             <.focus_wrap
               id={"#{@id}-container"}
-              phx-mounted={@show && show_modal(@id)}
-              phx-window-keydown={hide_modal(@on_cancel, @id)}
+              phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
-              phx-click-away={hide_modal(@on_cancel, @id)}
-              class="relative hidden transition shadow-lg dark:bg-zinc-700 rounded-2xl p-14 shadow-zinc-700/10 ring-1 ring-zinc-700/10"
+              phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
+              class="relative hidden transition bg-white shadow-lg shadow-zinc-700/10 ring-zinc-700/10 rounded-2xl p-14 ring-1"
             >
               <div class="absolute top-6 right-5">
                 <button
-                  phx-click={hide_modal(@on_cancel, @id)}
+                  phx-click={JS.exec("data-cancel", to: "##{@id}")}
                   type="button"
                   class="flex-none p-3 -m-3 opacity-20 hover:opacity-40"
                   aria-label={gettext("close")}
                 >
-                  <Heroicons.x_mark solid class="w-5 h-5 stroke-current" />
+                  <.icon name="hero-x-mark-solid" class="w-5 h-5" />
                 </button>
               </div>
               <div id={"#{@id}-content"}>
-                <header :if={@title != []}>
-                  <h1
-                    id={"#{@id}-title"}
-                    class="text-lg font-semibold leading-8 text-zinc-800 dark:text-white"
-                  >
-                    <%= render_slot(@title) %>
-                  </h1>
-                  <p
-                    :if={@subtitle != []}
-                    id={"#{@id}-description"}
-                    class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-200"
-                  >
-                    <%= render_slot(@subtitle) %>
-                  </p>
-                </header>
                 <%= render_slot(@inner_block) %>
-                <div :if={@confirm != [] or @cancel != []} class="flex items-center gap-5 mb-4 ml-6">
-                  <.button
-                    :for={confirm <- @confirm}
-                    id={"#{@id}-confirm"}
-                    phx-click={@on_confirm}
-                    phx-disable-with
-                    class="px-3 py-2"
-                  >
-                    <%= render_slot(confirm) %>
-                  </.button>
-                  <.link
-                    :for={cancel <- @cancel}
-                    phx-click={hide_modal(@on_cancel, @id)}
-                    class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700 dark:text-zinc-200"
-                  >
-                    <%= render_slot(cancel) %>
-                  </.link>
-                </div>
               </div>
             </.focus_wrap>
           </div>
@@ -138,8 +101,6 @@ defmodule RedEyeWeb.CoreComponents do
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
   attr :kind, :atom, values: [:info, :error], doc: "used for styling and flash lookup"
-  attr :autoshow, :boolean, default: true, doc: "whether to auto show the flash on mount"
-  attr :close, :boolean, default: true, doc: "whether the flash can be closed"
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
 
   slot :inner_block, doc: "the optional inner block that renders the flash message"
@@ -149,29 +110,23 @@ defmodule RedEyeWeb.CoreComponents do
     <div
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
-      phx-mounted={@autoshow && show("##{@id}")}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       class={[
-        "fixed hidden top-2 right-2 w-80 sm:w-96 z-50 rounded-lg p-3 shadow-md shadow-zinc-900/5 ring-1",
+        "fixed top-2 right-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
-        @kind == :error && "bg-rose-50 p-3 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
+        @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
       {@rest}
     >
-      <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6">
-        <Heroicons.information_circle :if={@kind == :info} mini class="w-4 h-4" />
-        <Heroicons.exclamation_circle :if={@kind == :error} mini class="w-4 h-4" />
+      <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
+        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="w-4 h-4" />
+        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="w-4 h-4" />
         <%= @title %>
       </p>
-      <p class="mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
-      <button
-        :if={@close}
-        type="button"
-        class="absolute p-2 group top-2 right-1"
-        aria-label={gettext("close")}
-      >
-        <Heroicons.x_mark solid class="w-5 h-5 stroke-current opacity-40 group-hover:opacity-70" />
+      <p class="mt-2 text-sm leading-5"><%= msg %></p>
+      <button type="button" class="absolute p-2 group top-1 right-1" aria-label={gettext("close")}>
+        <.icon name="hero-x-mark-solid" class="w-5 h-5 opacity-40 group-hover:opacity-70" />
       </button>
     </div>
     """
@@ -191,15 +146,26 @@ defmodule RedEyeWeb.CoreComponents do
     <.flash kind={:info} title="Success!" flash={@flash} />
     <.flash kind={:error} title="Error!" flash={@flash} />
     <.flash
-      id="disconnected"
+      id="client-error"
       kind={:error}
       title="We can't find the internet"
-      close={false}
-      autoshow={false}
-      phx-disconnected={show("#disconnected")}
-      phx-connected={hide("#disconnected")}
+      phx-disconnected={show(".phx-client-error #client-error")}
+      phx-connected={hide("#client-error")}
+      hidden
     >
-      Attempting to reconnect <Heroicons.arrow_path class="inline w-3 h-3 ml-1 animate-spin" />
+      Attempting to reconnect <.icon name="hero-arrow-path" class="w-3 h-3 ml-1 animate-spin" />
+    </.flash>
+
+    <.flash
+      id="server-error"
+      kind={:error}
+      title="Something went wrong!"
+      phx-disconnected={show(".phx-server-error #server-error")}
+      phx-connected={hide("#server-error")}
+      hidden
+    >
+      Hang in there while we get back on track
+      <.icon name="hero-arrow-path" class="w-3 h-3 ml-1 animate-spin" />
     </.flash>
     """
   end
@@ -221,7 +187,7 @@ defmodule RedEyeWeb.CoreComponents do
   attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
 
   attr :rest, :global,
-    include: ~w(autocomplete name rel action enctype method novalidate target),
+    include: ~w(autocomplete name rel action enctype method novalidate target multipart),
     doc: "the arbitrary HTML attributes to apply to the form tag"
 
   slot :inner_block, required: true
@@ -230,7 +196,7 @@ defmodule RedEyeWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white dark:bg-zinc-700">
+      <div class="mt-10 space-y-8 bg-white">
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="flex items-center justify-between gap-6 mt-2">
           <%= render_slot(action, f) %>
@@ -259,8 +225,8 @@ defmodule RedEyeWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
+        "phx-submit-loading:opacity-75 rounded-md bg-indigo-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400",
+        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500",
         @class
       ]}
       {@rest}
@@ -273,9 +239,22 @@ defmodule RedEyeWeb.CoreComponents do
   @doc """
   Renders an input with label and error messages.
 
-  A `%Phoenix.HTML.Form{}` and field name may be passed to the input
-  to build input names and error messages, or all the attributes and
-  errors may be passed explicitly.
+  A `Phoenix.HTML.FormField` may be passed as argument,
+  which is used to retrieve the input name, id, and values.
+  Otherwise all attributes may be passed explicitly.
+
+  ## Types
+
+  This function accepts all HTML input types, considering that:
+
+    * You may also set `type="select"` to render a `<select>` tag
+
+    * `type="checkbox"` is used exclusively to render boolean values
+
+    * For live file uploads, see `Phoenix.Component.live_file_input/1`
+
+  See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
+  for more information.
 
   ## Examples
 
@@ -300,8 +279,11 @@ defmodule RedEyeWeb.CoreComponents do
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
-  attr :rest, :global, include: ~w(autocomplete cols disabled form max maxlength min minlength
-                                   pattern placeholder readonly required rows size step)
+
+  attr :rest, :global,
+    include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
+                multiple pattern placeholder readonly required rows size step)
+
   slot :inner_block
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
@@ -323,11 +305,11 @@ defmodule RedEyeWeb.CoreComponents do
         <input type="hidden" name={@name} value="false" />
         <input
           type="checkbox"
-          id={@id || @name}
+          id={@id}
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900"
+          class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
           {@rest}
         />
         <%= @label %>
@@ -344,7 +326,7 @@ defmodule RedEyeWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-zinc-700 focus:outline-none focus:ring-zinc-500 focus:border-zinc-500 sm:text-sm"
+        class="block w-full mt-2 bg-white border border-gray-300 rounded-md shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
         multiple={@multiple}
         {@rest}
       >
@@ -361,14 +343,13 @@ defmodule RedEyeWeb.CoreComponents do
     <div phx-feedback-for={@name}>
       <.label for={@id}><%= @label %></.label>
       <textarea
-        id={@id || @name}
+        id={@id}
         name={@name}
         class={[
-          "mt-2 block min-h-[6rem] w-full rounded-lg border-zinc-300 py-[7px] px-[11px]",
-          "text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5",
-          "border-zinc-300 focus:border-zinc-400 focus:ring-zinc-800/5",
-          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
+          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
@@ -377,6 +358,7 @@ defmodule RedEyeWeb.CoreComponents do
     """
   end
 
+  # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
@@ -384,14 +366,13 @@ defmodule RedEyeWeb.CoreComponents do
       <input
         type={@type}
         name={@name}
-        id={@id || @name}
+        id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg border-zinc-300 py-[7px] px-[11px]",
-          "text-zinc-900 focus:outline-none focus:ring-4 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5",
-          "border-zinc-300 focus:border-zinc-400 focus:ring-zinc-800/5",
-          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
+          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
       />
@@ -408,7 +389,7 @@ defmodule RedEyeWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 dark:text-zinc-100">
+    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -421,8 +402,8 @@ defmodule RedEyeWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="flex gap-3 mt-3 text-sm leading-6 phx-no-feedback:hidden text-rose-600">
-      <Heroicons.exclamation_circle mini class="mt-0.5 h-5 w-5 flex-none fill-rose-500" />
+    <p class="flex gap-3 mt-3 text-sm leading-6 text-rose-600 phx-no-feedback:hidden">
+      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none" />
       <%= render_slot(@inner_block) %>
     </p>
     """
@@ -441,10 +422,10 @@ defmodule RedEyeWeb.CoreComponents do
     ~H"""
     <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
       <div>
-        <h1 class="text-lg font-semibold leading-8 text-zinc-800 dark:text-zinc-100">
+        <h1 class="text-lg font-semibold leading-8 text-zinc-800">
           <%= render_slot(@inner_block) %>
         </h1>
-        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-200">
+        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
           <%= render_slot(@subtitle) %>
         </p>
       </div>
@@ -486,36 +467,35 @@ defmodule RedEyeWeb.CoreComponents do
 
     ~H"""
     <div class="px-4 overflow-y-auto sm:overflow-visible sm:px-0">
-      <table class="mt-11 w-[40rem] sm:w-full dark:bg-slate-900">
-        <thead class="text-left text-[0.8125rem] leading-6 text-zinc-500 dark:text-zinc-200">
+      <table class="w-[40rem] mt-11 sm:w-full">
+        <thead class="text-sm leading-6 text-left text-zinc-500">
           <tr>
-            <th :for={col <- @col} class="p-4 font-normal"><%= col[:label] %></th>
-            <th class="relative p-4"><span class="sr-only"><%= gettext("Actions") %></span></th>
+            <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal"><%= col[:label] %></th>
+            <th class="relative p-0 pb-4"><span class="sr-only"><%= gettext("Actions") %></span></th>
           </tr>
         </thead>
         <tbody
           id={@id}
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
-          class="relative text-sm leading-6 border-t divide-y divide-zinc-100 border-zinc-200 text-zinc-700 dark:text-zinc-200 dark:divide-zinc-700 dark:border-zinc-700"
+          class="relative text-sm leading-6 border-t divide-y divide-zinc-100 border-zinc-200 text-zinc-700"
         >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)}>
+          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
             <td
               :for={{col, i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
               class={["relative p-0", @row_click && "hover:cursor-pointer"]}
             >
-              <div class="block p-4 font-semibold text-zinc-900 dark:text-zinc-100">
-                <span class={["relative", i == 0 && ""]}>
+              <div class="block py-4 pr-6">
+                <span class={["relative", i == 0 && "font-semibold text-zinc-900"]}>
                   <%= render_slot(col, @row_item.(row)) %>
                 </span>
               </div>
             </td>
             <td :if={@action != []} class="relative p-0 w-14">
               <div class="relative py-4 text-sm font-medium text-right whitespace-nowrap">
-                <span class="absolute left-0 -inset-y-px -right-4 group-hover:bg-zinc-50 sm:rounded-r-xl" />
                 <span
                   :for={action <- @action}
-                  class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700 dark:text-zinc-100"
+                  class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
                 >
                   <%= render_slot(action, @row_item.(row)) %>
                 </span>
@@ -546,9 +526,9 @@ defmodule RedEyeWeb.CoreComponents do
     ~H"""
     <div class="mt-14">
       <dl class="-my-4 divide-y divide-zinc-100">
-        <div :for={item <- @item} class="flex gap-4 py-4 sm:gap-8">
-          <dt class="w-1/4 flex-none text-[0.8125rem] leading-6 text-zinc-500"><%= item.title %></dt>
-          <dd class="text-sm leading-6 text-zinc-700"><%= render_slot(item) %></dd>
+        <div :for={item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
+          <dt class="flex-none w-1/4 text-zinc-500"><%= item.title %></dt>
+          <dd class="text-zinc-700"><%= render_slot(item) %></dd>
         </div>
       </dl>
     </div>
@@ -572,10 +552,62 @@ defmodule RedEyeWeb.CoreComponents do
         navigate={@navigate}
         class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
       >
-        <Heroicons.arrow_left solid class="inline w-3 h-3 stroke-current" />
+        <.icon name="hero-arrow-left-solid" class="w-3 h-3" />
         <%= render_slot(@inner_block) %>
       </.link>
     </div>
+    """
+  end
+
+  attr :size, :integer, default: 20
+
+  def red_eye_logo(assigns) do
+    ~H"""
+    <svg
+      viewBox="0 0 100"
+      xmlns="http://www.w3.org/2000/svg"
+      xml:space="preserve"
+      width={@size}
+      height={@size}
+    >
+      <path d="M90.852 144.963c13.73-16.416 35.063-26.681 58.745-26.03 23.685.652 44.421 12.074 57.227 29.22-13.728 16.414-35.061 26.68-58.745 26.028-23.684-.651-44.419-12.074-57.227-29.218m-11.917-.36c13.985 22.601 39.426 38.071 68.888 38.881 29.462.81 55.717-13.237 70.923-35.035-13.984-22.629-39.427-38.118-68.889-38.928-29.462-.811-55.715 13.256-70.922 35.082" />
+      <circle
+        cx="148.558"
+        cy="146.242"
+        transform="rotate(-.876 148.839 146.509)"
+        fill="#de0700"
+        stroke-width="5"
+        stroke="#fb5a5a"
+        r="17.171"
+      />
+    </svg>
+    """
+  end
+
+  @doc """
+  Renders a [Heroicon](https://heroicons.com).
+
+  Heroicons come in three styles – outline, solid, and mini.
+  By default, the outline style is used, but solid and mini may
+  be applied by using the `-solid` and `-mini` suffix.
+
+  You can customize the size and colors of the icons by setting
+  width, height, and background color classes.
+
+  Icons are extracted from your `assets/vendor/heroicons` directory and bundled
+  within your compiled app.css by the plugin in your `assets/tailwind.config.js`.
+
+  ## Examples
+
+      <.icon name="hero-x-mark-solid" />
+      <.icon name="hero-arrow-path" class="w-3 h-3 ml-1 animate-spin" />
+  """
+  attr :name, :string, required: true
+  attr :class, :string, default: nil
+
+  def icon(%{name: "hero-" <> _} = assigns) do
+    ~H"""
+    <span class={[@name, @class]} />
     """
   end
 
@@ -633,20 +665,13 @@ defmodule RedEyeWeb.CoreComponents do
     # When using gettext, we typically pass the strings we want
     # to translate as a static argument:
     #
-    #     # Translate "is invalid" in the "errors" domain
-    #     dgettext("errors", "is invalid")
-    #
     #     # Translate the number of files with plural rules
     #     dngettext("errors", "1 file", "%{count} files", count)
     #
-    # Because the error messages we show in our forms and APIs
-    # are defined inside Ecto, we need to translate them dynamically.
-    # This requires us to call the Gettext module passing our gettext
-    # backend as first argument.
-    #
-    # Note we use the "errors" domain, which means translations
-    # should be written to the errors.po file. The :count option is
-    # set by Ecto and indicates we should also apply plural rules.
+    # However the error messages in our forms and APIs are generated
+    # dynamically, so we need to translate them by calling Gettext
+    # with our gettext backend as first argument. Translations are
+    # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
       Gettext.dngettext(RedEyeWeb.Gettext, "errors", msg, msg, count, opts)
     else
@@ -659,5 +684,31 @@ defmodule RedEyeWeb.CoreComponents do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  def live_select(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    assigns =
+      assigns
+      |> assign(:errors, Enum.map(field.errors, &translate_error(&1)))
+      |> assign(:live_select_opts, assigns_to_attributes(assigns, [:errors, :label]))
+
+    ~H"""
+    <div phx-feedback-for={@field.name}>
+      <.label for={@field.id}><%= @label %></.label>
+      <LiveSelect.live_select
+        field={@field}
+        text_input_class={[
+          "mt-2 block w-full rounded-lg border-zinc-300 py-[7px] px-[11px]",
+          "text-zinc-900 focus:outline-none focus:ring-4 sm:text-sm sm:leading-6",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5",
+          "border-zinc-300 focus:border-zinc-400 focus:ring-zinc-800/5",
+          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
+        ]}
+        {@live_select_opts}
+      />
+
+      <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
+    """
   end
 end
