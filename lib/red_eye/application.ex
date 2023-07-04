@@ -22,7 +22,6 @@ defmodule RedEye.Application do
       # {RedEye.Worker, arg}
       {Oban, Application.fetch_env!(:red_eye, Oban)}
       # Binance Websocket API
-      # RedEye.StreamSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
