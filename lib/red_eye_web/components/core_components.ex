@@ -18,6 +18,7 @@ defmodule RedEyeWeb.CoreComponents do
 
   alias Phoenix.LiveView.JS
   import RedEyeWeb.Gettext
+  import Twix
 
   @doc """
   Renders a modal.
@@ -192,11 +193,12 @@ defmodule RedEyeWeb.CoreComponents do
 
   slot :inner_block, required: true
   slot :actions, doc: "the slot for form actions, such as a submit button"
+  attr :class, :string, default: nil
 
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class={tw(["mt-10 space-y-8 bg-white", @class])}>
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="flex items-center justify-between gap-6 mt-2">
           <%= render_slot(action, f) %>
@@ -284,6 +286,8 @@ defmodule RedEyeWeb.CoreComponents do
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step)
 
+  attr :class, :string, default: ""
+
   slot :inner_block
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
@@ -368,12 +372,15 @@ defmodule RedEyeWeb.CoreComponents do
         name={@name}
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-        class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
-        ]}
+        class={
+          tw([
+            "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+            "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+            @errors == [] && "border-zinc-300 focus:border-zinc-400",
+            @errors != [] && "border-rose-400 focus:border-rose-400",
+            @class
+          ])
+        }
         {@rest}
       />
       <.error :for={msg <- @errors}><%= msg %></.error>
@@ -686,6 +693,26 @@ defmodule RedEyeWeb.CoreComponents do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
 
+  attr :id, :string, required: true
+  attr :from, :string, required: true
+  attr :size, :string, default: "w-4 h-4"
+
+  attr :class, :string, default: "p-2 text-zinc-900 hover:bg-gray-200 focus:bg-gray-100"
+
+  def clippy_button(assigns) do
+    ~H"""
+    <button type="button" id={@id} data-from={@from} phx-hook="Clippy" class={@class}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class={@size}>
+        <path
+          fill-rule="evenodd"
+          d="M13.887 3.182c.396.037.79.08 1.183.128C16.194 3.45 17 4.414 17 5.517V16.75A2.25 2.25 0 0114.75 19h-9.5A2.25 2.25 0 013 16.75V5.517c0-1.103.806-2.068 1.93-2.207.393-.048.787-.09 1.183-.128A3.001 3.001 0 019 1h2c1.373 0 2.531.923 2.887 2.182zM7.5 4A1.5 1.5 0 019 2.5h2A1.5 1.5 0 0112.5 4v.5h-5V4z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </button>
+    """
+  end
+
   def live_select(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     assigns =
       assigns
@@ -709,6 +736,31 @@ defmodule RedEyeWeb.CoreComponents do
 
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
+    """
+  end
+
+  attr :time, :any, required: true
+  attr :format, :string, default: "%B %d, %Y"
+  attr :class, :string, default: ""
+
+  def time(%{time: nil} = assigns), do: render_nothing(assigns)
+
+  def time(assigns) do
+    assigns =
+      assigns
+      |> assign(
+        :label,
+        Timex.Format.DateTime.Formatter.format!(assigns.time, assigns.format, :strftime)
+      )
+
+    ~H"""
+    <time time={@time} class={@class}><%= @label %></time>
+    """
+  end
+
+  defp render_nothing(assigns) do
+    ~H"""
+
     """
   end
 

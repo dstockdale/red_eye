@@ -4,10 +4,13 @@ defmodule RedEye.Accounts.User do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users" do
-    field :email, :string
-    field :password, :string, virtual: true, redact: true
-    field :hashed_password, :string, redact: true
-    field :confirmed_at, :naive_datetime
+    field(:email, :string)
+    field(:password, :string, virtual: true, redact: true)
+    field(:hashed_password, :string, redact: true)
+    field(:confirmed_at, :naive_datetime)
+    field(:totp_secret, :string, redact: true)
+    field(:totp_confirmed_at, :naive_datetime)
+    field(:otp_code, :integer, virtual: true)
 
     timestamps()
   end
@@ -37,9 +40,24 @@ defmodule RedEye.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :totp_secret])
     |> validate_email(opts)
     |> validate_password(opts)
+    |> maybe_add_totp_secret()
+  end
+
+  def otp_changeset(%{totp_secret: secret} = user, attrs) do
+    changes =
+      user
+      |> cast(attrs, [:otp_code])
+      |> validate_required([:otp_code])
+      |> validate_otp_code(:otp_code, secret)
+      |> maybe_confirm(:totp_confirmed_at)
+
+    IO.inspect(changes)
+    IO.inspect(attrs)
+
+    changes
   end
 
   defp validate_email(changeset, opts) do
@@ -54,11 +72,34 @@ defmodule RedEye.Accounts.User do
     changeset
     |> validate_required([:password])
     |> validate_length(:password, min: 12, max: 72)
-    # Examples of additional password validation:
-    # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
-    # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
-    # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
+    |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
+    |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
+    |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/,
+      message: "at least one digit or punctuation character"
+    )
     |> maybe_hash_password(opts)
+  end
+
+  def validate_otp_code(changeset, field, secret) when is_atom(field) do
+    validate_change(changeset, field, fn field, value ->
+      case NimbleTOTP.valid?(secret, to_string(value)) do
+        true ->
+          []
+
+        false ->
+          [{field, "invalid OTP code"}]
+      end
+    end)
+  end
+
+  def maybe_confirm(changeset, field) do
+    confirmed_at = get_field(changeset, field)
+
+    if is_nil(confirmed_at) do
+      put_change(changeset, field, now())
+    else
+      changeset
+    end
   end
 
   defp maybe_hash_password(changeset, opts) do
@@ -83,6 +124,15 @@ defmodule RedEye.Accounts.User do
       changeset
       |> unsafe_validate_unique(:email, RedEye.Repo)
       |> unique_constraint(:email)
+    else
+      changeset
+    end
+  end
+
+  defp maybe_add_totp_secret(changeset) do
+    unless get_field(changeset, :totp_secret) do
+      changeset
+      |> put_change(:totp_secret, secret())
     else
       changeset
     end
@@ -126,8 +176,11 @@ defmodule RedEye.Accounts.User do
   Confirms the account by setting `confirmed_at`.
   """
   def confirm_changeset(user) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
-    change(user, confirmed_at: now)
+    change(user, confirmed_at: now())
+  end
+
+  def reset_otp_changeset(user) do
+    change(user, totp_confirmed_at: nil, totp_secret: secret())
   end
 
   @doc """
@@ -155,5 +208,13 @@ defmodule RedEye.Accounts.User do
     else
       add_error(changeset, :current_password, "is not valid")
     end
+  end
+
+  defp now do
+    NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+  end
+
+  defp secret do
+    NimbleTOTP.secret() |> Base.encode32()
   end
 end

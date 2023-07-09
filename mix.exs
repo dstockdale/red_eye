@@ -60,7 +60,11 @@ defmodule RedEye.MixProject do
       {:explorer, "~> 0.5.0"},
       {:number, "~> 1.0.3"},
       {:mint_web_socket, "~> 1.0"},
-      {:live_select, "~> 1.1"}
+      {:live_select, "~> 1.1"},
+      {:nimble_totp, "~> 1.0"},
+      {:eqrcode, "~> 0.1.10"},
+      {:twix, "~> 0.3.0"},
+      {:timex, "~> 3.0"}
     ]
   end
 

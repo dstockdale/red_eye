@@ -187,6 +187,26 @@ defmodule RedEye.Accounts do
     User.password_changeset(user, attrs, hash_password: false)
   end
 
+  def change_otp(user, attrs \\ %{}) do
+    User.otp_changeset(user, attrs)
+  end
+
+  def change_reset_otp(user) do
+    User.reset_otp_changeset(user)
+  end
+
+  def update_reset_otp(user) do
+    user
+    |> change_reset_otp()
+    |> Repo.update()
+  end
+
+  def update_confirm_otp(user, params \\ %{}) do
+    user
+    |> change_otp(params)
+    |> Repo.update()
+  end
+
   @doc """
   Updates the user password.
 

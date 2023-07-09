@@ -1,14 +1,11 @@
-<div class="flex flex-col">
+<div class="flex flex-col" phx-hook="Toaster" id="main-app">
   <.flash_group flash={@flash} />
-  <header class="border-b app-header border-slate-300 bg-slate-100">
-    <.red_eye_logo />
-  </header>
   <main class="flex">
     <aside class="flex-shrink-0 w-22">
       Watchlist
       Deals
     </aside>
-    <article class="flex-grow">
+    <article class="flex-grow px-8">
       <%= @inner_content %>
     </article>
   </main>

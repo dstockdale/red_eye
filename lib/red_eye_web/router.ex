@@ -20,7 +20,6 @@ defmodule RedEyeWeb.Router do
   scope "/", RedEyeWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
     live "/charts", ChartLive.Index, :index
     live "/charts/new", ChartLive.New, :new
     live "/charts/:id/edit", ChartLive.Edit, :edit
@@ -69,9 +68,11 @@ defmodule RedEyeWeb.Router do
 
   scope "/", RedEyeWeb do
     pipe_through [:browser, :require_authenticated_user]
+    get "/", PageController, :home
 
     live_session :require_authenticated_user,
       on_mount: [{RedEyeWeb.UserAuth, :ensure_authenticated}] do
+      live "/users/opt_code", UserOtpCodeLive, :edit
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
     end
