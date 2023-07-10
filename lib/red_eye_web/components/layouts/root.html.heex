@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="[scrollbar-gutter:stable] dark">
+<html lang="en" class="[scrollbar-gutter:stable]">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,7 +12,7 @@
     </script>
   </head>
   <body class="antialiased bg-white dark:bg-slate-800 dark:text-slate-400">
-    <div class="flex gap-4">
+    <div class="flex gap-4 mt-1">
       <div class="flex-grow px-8 py-1">
         <.link
           href={~p"/"}
@@ -30,47 +30,27 @@
           <span>Home</span>
         </.link>
       </div>
-      <ul class="relative z-10 flex items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
-        <%= if @current_user do %>
-          <li class="text-[0.8125rem] leading-6 text-zinc-900">
-            <%= @current_user.email %>
-          </li>
-          <li>
-            <.link
-              href={~p"/users/settings"}
-              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700  dark:text-zinc-100 dark:hover:text-amber-500 "
-            >
-              Settings
-            </.link>
-          </li>
-          <li>
-            <.link
-              href={~p"/users/log_out"}
-              method="delete"
-              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-amber-500 "
-            >
-              Log out
-            </.link>
-          </li>
-        <% else %>
-          <li>
-            <.link
-              href={~p"/users/register"}
-              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-amber-500 "
-            >
-              Register
-            </.link>
-          </li>
-          <li>
-            <.link
-              href={~p"/users/log_in"}
-              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-            >
-              Log in
-            </.link>
-          </li>
-        <% end %>
-      </ul>
+      <div class="flex items-center px-4 sm:px-6 lg:px-8">
+        <.dropdown>
+          <:trigger_element>
+            <div class="inline-flex items-center justify-center w-full align-middle focus:outline-none dark:hover:text-amber-500 hover:text-amber-700">
+              <.icon name={:user} solid class="w-5 h-5" />
+              <HeroiconsV1.Solid.chevron_down class="w-4 h-4 ml-1 -mr-1 text-gray-400 dark:text-gray-100" />
+            </div>
+          </:trigger_element>
+          <.dropdown_menu_item link_type="a" to={~p"/users/settings"}>
+            <.icon name={:cog_6_tooth} class="w-5 h-5" />
+            Settings
+          </.dropdown_menu_item>
+          <.dropdown_menu_item link_type="a" to={~p"/users/log_out"} method={:delete}>
+            <.icon name={:arrow_right_on_rectangle} class="w-5 h-5" />
+            Log out
+          </.dropdown_menu_item>
+        </.dropdown>
+        <button class="px-4 dark:hover:text-amber-500 hover:text-amber-700" id="dark-toggle" phx-hook="Darkness">
+          <.icon name={:sun} solid class="w-5 h-5 mt-1" />
+        </button>
+      </div>
     </div>
     <%= @inner_content %>
   </body>

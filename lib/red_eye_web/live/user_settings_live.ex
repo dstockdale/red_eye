@@ -17,9 +17,9 @@ defmodule RedEyeWeb.UserSettingsLive do
 
   def render(assigns) do
     ~H"""
-    <.header class="text-center">
+    <.h1 class="text-center">
       Account Settings
-    </.header>
+    </.h1>
 
     <%= if is_nil(@current_user.totp_confirmed_at) do %>
       <button
@@ -42,7 +42,7 @@ defmodule RedEyeWeb.UserSettingsLive do
           }
         >
           <span class="flex-grow">Setup Authentication App</span>
-          <.icon name="hero-play-solid" class="w-3 h-3" />
+          <.icon name={:play} solid class="w-3 h-3" />
         </button>
       </div>
 
@@ -69,7 +69,7 @@ defmodule RedEyeWeb.UserSettingsLive do
             phx-click={JS.toggle(to: "#otp_form_step2") |> JS.toggle(to: "#otp_form_step1")}
           >
             <span class="flex-grow">Next</span>
-            <.icon name="hero-play-solid" class="w-3 h-3" />
+            <.icon name={:play} solid class="w-3 h-3" />
           </button>
         </div>
         <div id="otp_form_step2" class="hidden">
@@ -120,7 +120,7 @@ defmodule RedEyeWeb.UserSettingsLive do
         phx-click={JS.toggle(to: "#app-email-change") |> JS.toggle(to: "#app-email-change-intro")}
       >
         <span class="flex-grow">Change Email</span>
-        <.icon name="hero-play-solid" class="w-3 h-3" />
+        <.icon name={:play} solid class="w-3 h-3" />
       </button>
     </p>
 
@@ -167,7 +167,7 @@ defmodule RedEyeWeb.UserSettingsLive do
         }
       >
         <span class="flex-grow">Change Password</span>
-        <.icon name="hero-play-solid" class="w-3 h-3" />
+        <.icon name={:play} solid class="w-3 h-3" />
       </button>
     </p>
 

@@ -3,34 +3,37 @@ defmodule RedEyeWeb.UserLoginLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
+    <div class="max-w-sm mx-auto mt-10">
+      <.h1 class="text-center">
         Sign in to account
-        <:subtitle>
+      </.h1>
+
+      <.h2>
           Don't have an account?
-          <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
-            Sign up
-          </.link>
-          for an account now.
-        </:subtitle>
-      </.header>
+      </.h2>
 
-      <.simple_form for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+      <.p>
+        <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
+          Sign up
+        </.link>
+        for an account now.
+      </.p>
 
-        <:actions>
-          <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
-          <.link href={~p"/users/reset_password"} class="text-sm font-semibold">
-            Forgot your password?
-          </.link>
-        </:actions>
-        <:actions>
-          <.button phx-disable-with="Signing in..." class="w-full">
+      <.form for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
+        <.field field={@form[:email]} type="email" label="Email" required />
+        <.field field={@form[:password]} type="password" label="Password" required />
+
+        <.field field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
+        <.link href={~p"/users/reset_password"} class="text-sm font-semibold">
+          Forgot your password?
+        </.link>
+
+        <div class="flex justify-end">
+          <.button phx-disable-with="Signing in...">
             Sign in <span aria-hidden="true">→</span>
           </.button>
-        </:actions>
-      </.simple_form>
+        </div>
+      </.form>
     </div>
     """
   end

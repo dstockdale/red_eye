@@ -64,7 +64,8 @@ defmodule RedEye.MixProject do
       {:nimble_totp, "~> 1.0"},
       {:eqrcode, "~> 0.1.10"},
       {:twix, "~> 0.3.0"},
-      {:timex, "~> 3.0"}
+      {:timex, "~> 3.0"},
+      {:petal_components, "~> 1.2"}
     ]
   end
 

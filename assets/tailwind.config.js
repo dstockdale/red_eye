@@ -4,6 +4,7 @@
 const plugin = require("tailwindcss/plugin");
 const fs = require("fs");
 const path = require("path");
+const colors = require("tailwindcss/colors"); // <-- ADD THIS LINE
 
 module.exports = {
   darkMode: "class",
@@ -12,11 +13,21 @@ module.exports = {
     "../lib/*_web.ex",
     "../lib/*_web/**/*.*ex",
     "../deps/live_select/lib/live_select/component.*ex",
+    "../deps/petal_components/**/*.*ex",
   ],
   theme: {
     extend: {
       colors: {
         brand: "#FD4F00",
+        primary: colors.blue,
+        secondary: colors.pink,
+        success: colors.green,
+        danger: colors.red,
+        warning: colors.yellow,
+        info: colors.sky,
+
+        // Options: slate, gray, zinc, neutral, stone
+        gray: colors.gray,
       },
     },
   },

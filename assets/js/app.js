@@ -22,11 +22,29 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 import Hooks from "./hooks";
+import Alpine from "alpinejs";
+import { isDark } from "./hooks/darkness";
+window.Alpine = Alpine;
+Alpine.start();
+
+const root = document.documentElement;
+if (isDark()) {
+  root.classList.add("dark");
+} else {
+  root.classList.remove("dark");
+}
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {
+  dom: {
+    onBeforeElUpdated(from, to) {
+      if (from._x_dataStack) {
+        window.Alpine.clone(from, to);
+      }
+    },
+  },
   params: { _csrf_token: csrfToken },
   hooks: Hooks,
 });

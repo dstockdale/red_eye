@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"alpinejs": "^3.12.3",
 		"lightweight-charts": "^4.0.0",
 		"toastify-js": "^1.12.0"
 	}
