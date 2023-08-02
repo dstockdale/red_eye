@@ -30,16 +30,6 @@ config :red_eye, RedEyeWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :red_eye, RedEye.Mailer, adapter: Swoosh.Adapters.Local
 
-# Configure esbuild (the version is required)
-config :esbuild,
-  version: "0.17.11",
-  default: [
-    args:
-      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
-    cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ]
-
 # Configure tailwind (the version is required)
 config :tailwind,
   version: "3.2.7",
@@ -70,6 +60,13 @@ config :red_eye, Oban,
      ]}
   ],
   queues: [default: 10, data_import: 6]
+
+config :red_eye, RedEye.Cache,
+  gc_interval: :timer.hours(12),
+  max_size: 1_000_000,
+  allocated_memory: 2_000_000_000,
+  gc_cleanup_min_timeout: :timer.seconds(10),
+  gc_cleanup_max_timeout: :timer.minutes(10)
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

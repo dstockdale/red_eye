@@ -4,9 +4,13 @@ defmodule RedEye.MarketData do
   """
 
   import Ecto.Query, warn: false
-  alias RedEye.Repo
+  use Nebulex.Caching
 
-  alias RedEye.MarketData.BinanceSpotCandle
+  alias RedEye.Repo
+  alias RedEye.Cache
+  alias RedEye.MarketData.{BinanceSpotCandle, BinanceSpotQueries}
+
+  @ttl :timer.hours(1)
 
   @doc """
   Returns the list of binance_spot_candles.
@@ -112,9 +116,10 @@ defmodule RedEye.MarketData do
     search = "%#{search}%"
 
     query =
-      from b in BinanceSymbol,
+      from(b in BinanceSymbol,
         where: ilike(b.symbol, ^search),
         order_by: b.symbol
+      )
 
     Repo.all(query)
   end
@@ -123,10 +128,11 @@ defmodule RedEye.MarketData do
     search = "%#{search}%"
 
     query =
-      from b in BinanceSymbol,
+      from(b in BinanceSymbol,
         select: [b.symbol, b.id],
         where: ilike(b.symbol, ^search),
         order_by: b.symbol
+      )
 
     Repo.all(query)
     |> list_to_tuples()
@@ -137,5 +143,15 @@ defmodule RedEye.MarketData do
     |> Enum.map(fn item ->
       List.to_tuple(item)
     end)
+  end
+
+  @decorate cacheable(cache: Cache, key: symbol, opts: [ttl: @ttl])
+  def cached_gaps(symbol) do
+    find_gaps(symbol)
+  end
+
+  def find_gaps(symbol) do
+    BinanceSpotQueries.gaps_query(symbol)
+    |> Repo.all()
   end
 end

@@ -12,46 +12,68 @@
     </script>
   </head>
   <body class="antialiased bg-white dark:bg-slate-800 dark:text-slate-400">
-    <div class="flex gap-4 mt-1">
-      <div class="flex-grow px-8 py-1">
-        <.link
-          href={~p"/"}
-          class="text-[0.8125rem] flex gap-2 leading-6 text-zinc-900 dark:text-zinc-100 dark:hover:text-amber-500 font-semibold hover:text-amber-700 items-center"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            class="w-4 h-4"
-          >
-            <path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z" />
-            <path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z" />
-          </svg>
-          <span>Home</span>
-        </.link>
-      </div>
-      <div class="flex items-center px-4 sm:px-6 lg:px-8">
-        <.dropdown>
-          <:trigger_element>
-            <div class="inline-flex items-center justify-center w-full align-middle focus:outline-none dark:hover:text-amber-500 hover:text-amber-700">
-              <.icon name={:user} solid class="w-5 h-5" />
-              <HeroiconsV1.Solid.chevron_down class="w-4 h-4 ml-1 -mr-1 text-gray-400 dark:text-gray-100" />
-            </div>
-          </:trigger_element>
-          <.dropdown_menu_item link_type="a" to={~p"/users/settings"}>
-            <.icon name={:cog_6_tooth} class="w-5 h-5" />
-            Settings
-          </.dropdown_menu_item>
-          <.dropdown_menu_item link_type="a" to={~p"/users/log_out"} method={:delete}>
-            <.icon name={:arrow_right_on_rectangle} class="w-5 h-5" />
-            Log out
-          </.dropdown_menu_item>
-        </.dropdown>
-        <button class="px-4 dark:hover:text-amber-500 hover:text-amber-700" id="dark-toggle" phx-hook="Darkness">
-          <.icon name={:sun} solid class="w-5 h-5 mt-1" />
-        </button>
-      </div>
+    <div class="grid h-screen grid-cols-app-layout">
+      <aside class="border-r shadow-inner border-slate-300 dark:border-transparent bg-slate-100 dark:bg-slate-900">
+        <ul class="flex flex-col gap-1 mt-1">
+          <li class="flex items-center justify-center">
+            <.link
+              href={~p"/"}
+              class="p-2 border border-transparent rounded-md dark:hover:bg-slate-800 dark:hover:border-slate-700 text-zinc-900 hover:shadow-inner dark:text-zinc-500 dark:hover:text-amber-500 hover:text-amber-700 hover:bg-white hover:border-slate-300"
+              title="Home"
+              tabindex="0"
+            >
+              <.icon name={:home} solid class="w-5 h-5" />
+              <span class="sr-only">Home</span>
+            </.link>
+          </li>
+          <li class="flex items-center justify-center">
+            <.link
+              href={~p"/charts"}
+              class="p-2 border border-transparent rounded-md dark:hover:bg-slate-800 dark:hover:border-slate-700 text-zinc-900 hover:shadow-inner dark:text-zinc-500 dark:hover:text-amber-500 hover:text-amber-700 hover:bg-white hover:border-slate-300"
+              title="Data"
+            >
+              <.icon name={:chart_bar} solid class="w-5 h-5" />
+              <span class="sr-only">Data</span>
+            </.link>
+          </li>
+          <li class="flex items-center justify-center">
+            <.link
+              href={~p"/"}
+              class="p-2 border border-transparent rounded-md dark:hover:bg-slate-800 dark:hover:border-slate-700 text-zinc-900 hover:shadow-inner dark:text-zinc-500 dark:hover:text-amber-500 hover:text-amber-700 hover:bg-white hover:border-slate-300"
+              title="Home"
+            >
+              <.icon name={:circle_stack} solid class="w-5 h-5" />
+            </.link>
+          </li>
+        </ul>
+      </aside>
+      <main class="pb-60">
+        <div class="flex">
+          <div class="flex-grow"></div>
+          <div class="flex items-center mt-1">
+            <.dropdown>
+              <:trigger_element>
+                <div class="inline-flex items-center justify-center w-full align-middle focus:outline-none dark:hover:text-amber-500 hover:text-amber-700">
+                  <.icon name={:user} solid class="w-5 h-5" />
+                  <HeroiconsV1.Solid.chevron_down class="w-4 h-4 ml-1 -mr-1 text-gray-400 dark:text-gray-100" />
+                </div>
+              </:trigger_element>
+              <.dropdown_menu_item link_type="a" to={~p"/users/settings"}>
+                <.icon name={:cog_6_tooth} class="w-5 h-5" />
+                Settings
+              </.dropdown_menu_item>
+              <.dropdown_menu_item link_type="a" to={~p"/users/log_out"} method={:delete}>
+                <.icon name={:arrow_right_on_rectangle} class="w-5 h-5" />
+                Log out
+              </.dropdown_menu_item>
+            </.dropdown>
+            <button class="px-4 dark:hover:text-amber-500 hover:text-amber-700" id="dark-toggle" phx-hook="Darkness">
+              <.icon name={:sun} solid class="w-5 h-5 mt-1" />
+            </button>
+          </div>
+        </div>
+        <%= @inner_content %>
+      </main>
     </div>
-    <%= @inner_content %>
   </body>
 </html>

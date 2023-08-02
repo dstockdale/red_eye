@@ -10,6 +10,7 @@ module.exports = {
   darkMode: "class",
   content: [
     "./js/**/*.js",
+    "./js/**/*.svelte",
     "../lib/*_web.ex",
     "../lib/*_web/**/*.*ex",
     "../deps/live_select/lib/live_select/component.*ex",
@@ -28,6 +29,13 @@ module.exports = {
 
         // Options: slate, gray, zinc, neutral, stone
         gray: colors.gray,
+      },
+      gridTemplateColumns: {
+        // Simple 16 column grid
+        16: "repeat(16, minmax(0, 1fr))",
+
+        // Complex site-specific column configuration
+        "app-layout": "45px minmax(0, 1fr)",
       },
     },
   },

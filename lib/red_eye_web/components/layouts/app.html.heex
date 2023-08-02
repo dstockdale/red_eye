@@ -1,16 +1,12 @@
 <div class="flex flex-col" phx-hook="Toaster" id="main-app">
   <.flash_group flash={@flash} />
   <main class="flex">
-    <aside class="flex-shrink-0 w-22">
-      Watchlist
-      Deals
-    </aside>
     <article class="flex-grow px-8">
       <%= @inner_content %>
     </article>
   </main>
 </div>
-<footer class="fixed bottom-0 left-0 flex w-screen gap-2 p-2 overflow-x-auto shadow-inner-lg dark:bg-slate-900 bg-slate-200 text-slate-800 dark:text-slate-50 h-36">
+<footer class="fixed bottom-0 left-0 z-20 flex w-screen gap-2 p-2 overflow-x-auto border-t shadow-inner border-slate-300 dark:border-slate-700 dark:bg-slate-900 bg-slate-200 text-slate-800 dark:text-slate-50 h-36">
   <.deal symbol="SOLUSDT" />
   <.deal symbol="ETHUSDT" />
   <.deal symbol="INJUSDT" />

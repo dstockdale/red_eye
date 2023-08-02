@@ -11,12 +11,13 @@
   </p>
 </.header>
 
-<section id="lightweight-chart" phx-update="ignore">
+<section id="lightweight-svelte-container" phx-update="ignore">
   <div
-    id="candleStickChart"
+    id="svelteChart"
     class="min-h-[400px] min-w-[600px]"
-    phx-hook="CandleStickChart"
-    data-chart-data={Jason.encode!(@chart_data)}
+    phx-hook="SvelteComponent"
+    data-name="LightWeightChart"
+    data-props={Jason.encode!(%{data: @chart_data})}
   >
   </div>
 </section>
@@ -25,7 +26,6 @@
   :if={@live_action == :edit}
   id="chart-modal"
   show
-  on_cancel={JS.patch(~p"/charts/#{@chart}")}
 >
   <.live_component
     module={RedEyeWeb.ChartLive.FormComponent}

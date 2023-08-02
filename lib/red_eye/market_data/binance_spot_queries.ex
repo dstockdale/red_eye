@@ -28,4 +28,31 @@ defmodule RedEye.MarketData.BinanceSpotQueries do
       limit: 1
     )
   end
+
+  @spec lead_times_query(String) :: Ecto.Query.t()
+  def lead_times_query(symbol) do
+    from(s in BinanceSpotCandle,
+      select: %{
+        time: s.timestamp,
+        lead_time: fragment("LEAD(timestamp) OVER (ORDER BY timestamp)"),
+        diff: fragment("LEAD(timestamp) OVER (ORDER BY timestamp) - timestamp")
+      },
+      where: s.symbol == ^symbol
+    )
+  end
+
+  @spec gaps_query(String) :: Ecto.Query.t()
+  def gaps_query(symbol) do
+    lead_times = lead_times_query(symbol)
+
+    from(s in subquery(lead_times),
+      select: %{
+        from: fragment("time + INTERVAL '1 MINUTE'"),
+        to: fragment("lead_time - INTERVAL '1 MINUTE'"),
+        diff: fragment("diff - INTERVAL '2 MINUTE'")
+      },
+      where: fragment("diff > INTERVAL '1 MINUTE'"),
+      order_by: {:desc, s.time}
+    )
+  end
 end

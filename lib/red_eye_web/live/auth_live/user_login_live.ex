@@ -3,16 +3,15 @@ defmodule RedEyeWeb.UserLoginLive do
 
   def render(assigns) do
     ~H"""
-    <div class="max-w-sm mx-auto mt-10">
-      <.h1 class="text-center">
+    <div class="max-w-sm p-8 mx-auto mt-10">
+      <.h1 class="text-2xl text-center">
         Sign in to account
       </.h1>
 
-      <.h2>
-          Don't have an account?
-      </.h2>
-
-      <.p>
+      <.p class="text-center">
+        Don't have an account?
+      </.p>
+      <.p class="text-center">
         <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
           Sign up
         </.link>

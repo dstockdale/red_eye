@@ -1,38 +1,18 @@
-<.header>
+<.h2 class="mt-0 mb-10">
   Monitoring Symbols to backtest / trade
-  <:actions>
-    <.link navigate={~p"/charts/new"}>
-      <.button>New Chart</.button>
-    </.link>
-  </:actions>
-</.header>
+</.h2>
 
-<.table
+<.datatable
   id="charts"
   rows={@streams.charts}
   row_click={fn {_id, chart} -> JS.navigate(~p"/charts/#{chart}") end}
 >
-  <:col :let={{_id, chart}} label="Exchange"><%= String.capitalize(chart.exchange) %></:col>
   <:col :let={{_id, chart}} label="Symbol"><%= chart.binance_symbol.symbol %></:col>
+  <:col :let={{_id, chart}} label="Exchange"><%= String.capitalize(chart.exchange) %></:col>
   <:col :let={{_id, chart}} label="Starting Date">
-    <%= chart.earliest_timestamp %>
+    <.time time={chart.earliest_timestamp} />
   </:col>
-
-  <:action :let={{_id, chart}}>
-    <div class="sr-only">
-      <.link navigate={~p"/charts/#{chart}"}>Show</.link>
-    </div>
-    <.link navigate={~p"/charts/#{chart}/edit"}>Edit</.link>
-  </:action>
-  <:action :let={{id, chart}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: chart.id}) |> hide("##{id}")}
-      data-confirm="Are you sure?"
-    >
-      Delete
-    </.link>
-  </:action>
-</.table>
+</.datatable>
 
 <.modal
   :if={@live_action in [:new, :edit]}

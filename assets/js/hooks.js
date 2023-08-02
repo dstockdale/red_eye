@@ -1,15 +1,21 @@
 import { LiveSelect } from "./hooks/live_select";
-import { CandleStickChart } from "./hooks/candle_stick_chart";
 import { Clippy } from "./hooks/clippy";
 import { Toaster } from "./hooks/toaster";
 import { Darkness } from "./hooks/darkness";
+import { Chart } from "./hooks/chart";
+import { SolidChart } from "./hooks/solid_chart";
+import { LiveReact } from "./hooks/live_react";
+import { SvelteComponent } from "./hooks/svelte_component";
 
 let Hooks = {};
 
 Hooks.LiveSelect = LiveSelect;
-Hooks.CandleStickChart = CandleStickChart;
 Hooks.Clippy = Clippy;
 Hooks.Toaster = Toaster;
 Hooks.Darkness = Darkness;
+Hooks.Chart = Chart;
+Hooks.LiveReact = LiveReact;
+Hooks.SolidChart = SolidChart;
+Hooks.SvelteComponent = SvelteComponent;
 
 export default Hooks;

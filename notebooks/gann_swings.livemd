@@ -2,8 +2,8 @@
 
 ```elixir
 Mix.install([
-  {:explorer, "~> 0.5.0"},
-  {:kino, "~> 0.8.0"}
+  {:explorer, "~> 0.6.1"},
+  {:kino, "~> 0.10.0"}
 ])
 ```
 
@@ -19,38 +19,42 @@ df = DataFrame.from_csv!(csv_file)
 previous_highs = Series.shift(df[:high], 1)
 previous_lows = Series.shift(df[:low], 1)
 previous_closes = Series.shift(df[:close], 1)
-nil_previous_highs = Explorer.Series.is_nil(previous_highs)
+higher_highs = Series.greater(df[:high], previous_highs)
+lower_lows = Series.less(df[:low], previous_lows)
+has_swings = Series.or(higher_highs, lower_lows)
 
 df =
   df
-  |> DF.put(:previous_high, previous_highs)
-  |> DF.put(:previous_low, previous_lows)
-  |> DF.put(:previous_close, previous_closes)
-  |> DF.put(:nil_previous_high, nil_previous_highs)
+  |> DF.put(:higher_highs, higher_highs)
+  |> DF.put(:lower_lows, lower_lows)
+  |> DF.put(:has_swings, has_swings)
+  |> DF.mask(has_swings)
   |> DF.mutate_with(fn item ->
-    {type, swing_value} =
+    value =
       cond do
-        # item["nil_previous_high"] ->
-        #   {"op", item["nil_previous_high"]}
-        # !item["nil_previous_high"] ->
-        #   {"eg", item["nil_previous_high"]}
+        item["higher_highs"] ->
+          item["high"]
 
-        # item["high"] > item["previous_high"] && item["low"] > item["previous_low"] ->
-        #   {"hh", item["high"]}
-        # item["high"] < item["previous_high"] && item["low"] < item["previous_low"] ->
-        #   {"ll", item["low"]}
-        # item["high"] > item["previous_high"] && item["low"] < item["previous_low"] ->
-        #   {"ob", item["high"]}
-        true ->
-          {"ignore", 0}
+        item["lower_lows"] ->
+          item["low"]
       end
 
-    [swing_value: swing_value, type: type]
+    [value: value]
   end)
-
-# |> DF.group_by("time")
-# |> DF.to_rows()
-# |> Enum.group_by(fn item -> item["time"] end)
+  |> DF.discard([
+    "higher_highs",
+    "lower_lows",
+    "has_swings",
+    "volume",
+    "close",
+    "high",
+    "low",
+    "open"
+  ])
+  |> DF.group_by("time")
+  |> DF.to_rows()
+  |> Enum.group_by(fn item -> item["time"] end)
+  |> Enum.sort()
 ```
 
 ```elixir

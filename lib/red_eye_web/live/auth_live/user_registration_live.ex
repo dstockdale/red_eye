@@ -6,19 +6,22 @@ defmodule RedEyeWeb.UserRegistrationLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
+    <div class="max-w-sm p-8 mx-auto mt-10">
+      <.h1 class="text-2xl text-center">
         Register for an account
-        <:subtitle>
-          Already registered?
-          <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+      </.h1>
+
+      <.p class="text-center">
+        Already registered?
+      </.p>
+      <.p class="text-center">
+        <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
             Sign in
           </.link>
           to your account now.
-        </:subtitle>
-      </.header>
+      </.p>
 
-      <.simple_form
+      <.form
         for={@form}
         id="registration_form"
         phx-submit="save"
@@ -31,13 +34,15 @@ defmodule RedEyeWeb.UserRegistrationLive do
           Oops, something went wrong! Please check the errors below.
         </.error>
 
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+        <.field field={@form[:email]} type="email" label="Email" required />
+        <.field field={@form[:password]} type="password" label="Password" required />
 
-        <:actions>
-          <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
-        </:actions>
-      </.simple_form>
+        <div class="flex justify-end">
+          <.button  phx-disable-with="Creating account...">
+            Create an account
+          </.button>
+        </div>
+      </.form>
     </div>
     """
   end

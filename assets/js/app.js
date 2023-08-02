@@ -24,6 +24,7 @@ import topbar from "../vendor/topbar";
 import Hooks from "./hooks";
 import Alpine from "alpinejs";
 import { isDark } from "./hooks/darkness";
+
 window.Alpine = Alpine;
 Alpine.start();
 

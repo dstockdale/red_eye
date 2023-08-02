@@ -92,6 +92,8 @@ defmodule RedEyeWeb do
 
       use PetalComponents
 
+      import PhoenixLiveReact
+
       # Routes generation with the ~p sigil
       unquote(verified_routes())
     end

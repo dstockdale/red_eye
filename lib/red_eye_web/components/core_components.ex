@@ -445,80 +445,70 @@ defmodule RedEyeWeb.CoreComponents do
     """
   end
 
-  # @doc ~S"""
-  # Renders a table with generic styling.
+  @doc ~S"""
+  Renders a table with generic styling.
 
-  # ## Examples
+  ## Examples
 
-  #     <.table id="users" rows={@users}>
-  #       <:col :let={user} label="id"><%= user.id %></:col>
-  #       <:col :let={user} label="username"><%= user.username %></:col>
-  #     </.table>
-  # """
-  # attr(:id, :string, required: true)
-  # attr(:rows, :list, required: true)
-  # attr(:row_id, :any, default: nil, doc: "the function for generating the row id")
-  # attr(:row_click, :any, default: nil, doc: "the function for handling phx-click on each row")
+      <.table id="users" rows={@users}>
+        <:col :let={user} label="id"><%= user.id %></:col>
+        <:col :let={user} label="username"><%= user.username %></:col>
+      </.table>
+  """
+  attr(:id, :string, required: true)
+  attr(:rows, :list, required: true)
+  attr(:row_id, :any, default: nil, doc: "the function for generating the row id")
+  attr(:row_click, :any, default: nil, doc: "the function for handling phx-click on each row")
 
-  # attr(:row_item, :any,
-  #   default: &Function.identity/1,
-  #   doc: "the function for mapping each row before calling the :col and :action slots"
-  # )
+  attr(:row_item, :any,
+    default: &Function.identity/1,
+    doc: "the function for mapping each row before calling the :col and :action slots"
+  )
 
-  # slot :col, required: true do
-  #   attr(:label, :string)
-  # end
+  slot :col, required: true do
+    attr(:label, :string)
+  end
 
-  # slot(:action, doc: "the slot for showing user actions in the last table column")
+  slot(:action, doc: "the slot for showing user actions in the last table column")
 
-  # def table(assigns) do
-  #   assigns =
-  #     with %{rows: %Phoenix.LiveView.LiveStream{}} <- assigns do
-  #       assign(assigns, row_id: assigns.row_id || fn {id, _item} -> id end)
-  #     end
+  def datatable(assigns) do
+    assigns =
+      with %{rows: %Phoenix.LiveView.LiveStream{}} <- assigns do
+        assign(assigns, row_id: assigns.row_id || fn {id, _item} -> id end)
+      end
 
-  #   ~H"""
-  #   <div class="px-4 overflow-y-auto sm:overflow-visible sm:px-0">
-  #     <table class="w-[40rem] mt-11 sm:w-full">
-  #       <thead class="text-sm leading-6 text-left text-zinc-500">
-  #         <tr>
-  #           <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal"><%= col[:label] %></th>
-  #           <th class="relative p-0 pb-4"><span class="sr-only"><%= gettext("Actions") %></span></th>
-  #         </tr>
-  #       </thead>
-  #       <tbody
-  #         id={@id}
-  #         phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
-  #         class="relative text-sm leading-6 border-t divide-y divide-zinc-100 border-zinc-200 text-zinc-700"
-  #       >
-  #         <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
-  #           <td
-  #             :for={{col, i} <- Enum.with_index(@col)}
-  #             phx-click={@row_click && @row_click.(row)}
-  #             class={["relative p-0", @row_click && "hover:cursor-pointer"]}
-  #           >
-  #             <div class="block py-4 pr-6">
-  #               <span class={["relative", i == 0 && "font-semibold text-zinc-900"]}>
-  #                 <%= render_slot(col, @row_item.(row)) %>
-  #               </span>
-  #             </div>
-  #           </td>
-  #           <td :if={@action != []} class="relative p-0 w-14">
-  #             <div class="relative py-4 text-sm font-medium text-right whitespace-nowrap">
-  #               <span
-  #                 :for={action <- @action}
-  #                 class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
-  #               >
-  #                 <%= render_slot(action, @row_item.(row)) %>
-  #               </span>
-  #             </div>
-  #           </td>
-  #         </tr>
-  #       </tbody>
-  #     </table>
-  #   </div>
-  #   """
-  # end
+    ~H"""
+    <div class="mt-10 -mx-4 ring-1 ring-gray-300 dark:ring-gray-500 sm:mx-0 sm:rounded-lg">
+      <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-500">
+        <thead>
+          <tr>
+            <th :for={col <- @col} class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white lg:table-cell"><%= col[:label] %></th>
+          </tr>
+        </thead>
+        <tbody
+          id={@id}
+          phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
+          class="relative text-sm leading-6 border-t divide-y divide-zinc-100 dark:divide-gray-500 border-zinc-200 dark:border-zinc-500 text-zinc-700 dark:text-zinc-300"
+        >
+          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50 dark:hover:bg-zinc-600">
+            <td
+              :for={{col, i} <- Enum.with_index(@col)}
+              phx-click={@row_click && @row_click.(row)}
+              class={["relative p-0", @row_click && "hover:cursor-pointer"]}
+            >
+              <div class="block px-3 py-4">
+                <span class={["relative", i == 0 && "font-semibold text-zinc-900 dark:text-zinc-300"]}>
+                  <%= render_slot(col, @row_item.(row)) %>
+                </span>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    """
+  end
 
   @doc """
   Renders a data list.
@@ -771,7 +761,7 @@ defmodule RedEyeWeb.CoreComponents do
 
   def deal(assigns) do
     ~H"""
-    <div class="h-full w-[280px] border shadow-md dark:shadow-inner dark:shadow-blue-100/10 border-gray-200 dark:border-gray-600 hover:border-gray-500 px-3 py-2 rounded-md bg-slate-50 dark:bg-slate-800">
+    <div class="h-full w-[280px] border shadow-md dark:shadow-inner dark:shadow-blue-100/10 border-gray-200 dark:border-gray-600 hover:border-gray-300 px-3 py-2 rounded-md bg-slate-50 dark:bg-slate-800">
       <div class="flex gap-2">
         <div class="flex items-center flex-grow gap-2">
           <h2 class="text-sm font-bold text-gray-900 dark:text-gray-100"><%= @symbol %></h2>
@@ -789,25 +779,12 @@ defmodule RedEyeWeb.CoreComponents do
           </div>
           <div class="text-sm font-bold text-green-600">0.3%</div>
         </div>
-        <button class="p-2 bg-gray-800 rounded-sm hover:bg-gray-700 ring-1 ring-gray-700">
-          <svg
-            class="w-3 h-3 text-gray-100 dark:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 10 16"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M0 .8C0 .358.32 0 .714 0h1.429c.394 0 .714.358.714.8v14.4c0 .442-.32.8-.714.8H.714a.678.678 0 0 1-.505-.234A.851.851 0 0 1 0 15.2V.8Zm7.143 0c0-.442.32-.8.714-.8h1.429c.19 0 .37.084.505.234.134.15.209.354.209.566v14.4c0 .442-.32.8-.714.8H7.857c-.394 0-.714-.358-.714-.8V.8Z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </button>
+        <.button size="xs" icon={:pause} tooltip="Pause this strategy?" color="gray" />
+
       </div>
       <div class="flex gap-2">
-        <span class="text-xs text-yellow-400">Binance</span>
-        <span class="text-xs dark:text-slate-100 text-slate-800">Gann Swing</span>
+        <span class="text-xs font-semibold text-yellow-400">Binance</span>
+        <span class="text-xs font-semibold dark:text-slate-100 text-slate-800">Gann Swing</span>
       </div>
       <div class="flex gap-2">
         <div class="text-sm font-medium dark:text-slate-200 text-slate-800">

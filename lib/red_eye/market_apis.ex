@@ -48,6 +48,20 @@ defmodule RedEye.MarketApis do
     |> MarketData.upsert_binance_symbols()
   end
 
+  def fill_gaps(symbol) do
+    gaps = MarketData.find_gaps(symbol)
+
+    timestamps =
+      gaps
+      |> Enum.map(fn item ->
+        item.from
+        |> DateTime.from_naive!("Etc/UTC")
+        |> DateTime.to_unix(:millisecond)
+      end)
+
+    import_binance_spot_candles_jobs(symbol, "1m", timestamps)
+  end
+
   defp exclude_inserted_timestamps(timestamps, symbol) do
     already_inserted =
       BinanceSpotQueries.existing_candles(timestamps, symbol)

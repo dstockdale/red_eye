@@ -17,146 +17,131 @@ defmodule RedEyeWeb.UserSettingsLive do
 
   def render(assigns) do
     ~H"""
-    <.h1 class="text-center">
+    <.h2 class="text-center">
       Account Settings
-    </.h1>
+    </.h2>
 
-    <%= if is_nil(@current_user.totp_confirmed_at) do %>
-      <button
-        class="text-lg font-semibold leading-8 text-zinc-800"
-        phx-click={
-          JS.toggle(to: "#app-auth-device", display: "flex")
-          |> JS.toggle(to: "#app-auth-device-intro")
-        }
-      >
-        Authenticator App
-      </button>
-
-      <div class="leading-8 text-md text-zinc-700" id="app-auth-device-intro">
-        You need to use an authenticator app to get full access to the system.
-        <button
-          class="flex items-center gap-1 px-2 py-1 mt-6 -mr-1 text-xs font-semibold leading-4 rounded-sm text-zinc-800 bg-amber-400"
-          phx-click={
-            JS.toggle(to: "#app-auth-device", display: "flex")
-            |> JS.toggle(to: "#app-auth-device-intro")
-          }
-        >
-          <span class="flex-grow">Setup Authentication App</span>
-          <.icon name={:play} solid class="w-3 h-3" />
-        </button>
-      </div>
-
-      <div class="hidden gap-4" id="app-auth-device">
-        <div>
-          <%= raw(@qrcode) %>
-        </div>
-        <div class="flex-grow" id="otp_form_step1">
-          <p class="text-sm leading-6 text-zinc-600">Scan this QR code in the authenticator app</p>
-
-          <div class="flex items-center max-w-sm mt-10" data-otp-setup="intro">
-            <p tabindex="-1" id="otp-secret-text" class="flex-grow text-xs">
-              <%= @otp_secret %>
-            </p>
-            <.clippy_button id="clippy-btn" size="w-3 w-3" from="otp-secret-text" />
-          </div>
-
-          <p class="text-sm leading-6 text-zinc-600">
-            If you are unable to scan the OR code, please enter this code manually into the app.
-          </p>
-
-          <button
-            class="inline-flex items-center gap-1 px-2 py-1 mt-6 text-xs font-semibold leading-4 rounded-sm text-zinc-800 bg-amber-400"
-            phx-click={JS.toggle(to: "#otp_form_step2") |> JS.toggle(to: "#otp_form_step1")}
+    <.accordion class="w-full mt-10">
+      <:item heading="Authenticator App">
+      <%= if is_nil(@current_user.totp_confirmed_at) do %>
+        <div class="leading-8 text-md text-zinc-700" id="app-auth-device-intro">
+          <.p>
+            You need to use an authenticator app to get full access to the system.
+          </.p>
+          <.button
+            class="mt-6 bg-amber-400 text-slate-800 hover:bg-amber-500"
+            size="xs"
+            with_icon={true}
+            phx-click={
+              JS.toggle(to: "#app-auth-device", display: "flex")
+              |> JS.toggle(to: "#app-auth-device-intro")
+            }
           >
-            <span class="flex-grow">Next</span>
+            Setup Authentication App
+            <.icon name={:play} solid class="w-3 h-3" />
+          </.button>
+        </div>
+
+        <div class="hidden gap-4" id="app-auth-device">
+          <div>
+            <%= raw(@qrcode) %>
+          </div>
+          <div class="flex-grow" id="otp_form_step1">
+            <p class="text-sm leading-6 text-zinc-600">Scan this QR code in the authenticator app</p>
+
+            <div class="flex items-center max-w-sm mt-10" data-otp-setup="intro">
+              <p tabindex="-1" id="otp-secret-text" class="flex-grow text-xs">
+                <%= @otp_secret %>
+              </p>
+              <.clippy_button id="clippy-btn" size="w-3 w-3" from="otp-secret-text" />
+            </div>
+
+            <p class="text-sm leading-6 text-zinc-600">
+              If you are unable to scan the OR code, please enter this code manually into the app.
+            </p>
+
+            <button
+              class="inline-flex items-center gap-1 px-2 py-1 mt-6 text-xs font-semibold leading-4 rounded-sm text-zinc-800 bg-amber-400"
+              phx-click={JS.toggle(to: "#otp_form_step2") |> JS.toggle(to: "#otp_form_step1")}
+            >
+              <span class="flex-grow">Next</span>
+              <.icon name={:play} solid class="w-3 h-3" />
+            </button>
+          </div>
+          <div id="otp_form_step2" class="hidden">
+            <.simple_form
+              class="mt-2"
+              for={@otp_form}
+              id="otp_form"
+              phx-submit="update_otp"
+              phx-change="validate_otp"
+            >
+              <.input
+                field={@otp_form[:otp_code]}
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="6"
+                label="OTP Code"
+                max={999_999}
+                phx-debounce="blur"
+                autocomplete="off"
+                spellcheck="off"
+                class="w-32"
+                required
+              />
+            </.simple_form>
+          </div>
+        </div>
+      <% else %>
+        <.p>Added: <.time time={@current_user.totp_confirmed_at} /></.p>
+
+        <.form for={@reset_otp_form} phx-submit="reset_otp_secret" class="mt-6">
+          <.button icon={:trash} color="secondary" label="Reset Authentication App" size="xs" data-confirm="Are  you sure? You'll have to setup a new Auth application" />
+        </.form>
+      <% end %>
+      </:item>
+
+      <:item heading="Change Email">
+        <.p id="app-email-change-intro">
+          You can change your email but you'll need to reconfirm the address after you do this.
+          <button
+            class="flex items-center gap-1 px-2 py-1 mt-6 text-xs font-semibold leading-4 rounded-sm text-zinc-800 bg-amber-400"
+            phx-click={JS.toggle(to: "#app-email-change") |> JS.toggle(to: "#app-email-change-intro")}
+          >
+            <span class="flex-grow">Change Email</span>
             <.icon name={:play} solid class="w-3 h-3" />
           </button>
+        </.p>
+
+        <div class="hidden space-y-12 divide-y" id="app-email-change">
+          <div>
+            <.simple_form
+              for={@email_form}
+              id="email_form"
+              phx-submit="update_email"
+              phx-change="validate_email"
+            >
+              <.input field={@email_form[:email]} type="email" label="Email" required />
+              <.input
+                field={@email_form[:current_password]}
+                name="current_password"
+                id="current_password_for_email"
+                type="password"
+                label="Current password"
+                value={@email_form_current_password}
+                required
+              />
+              <:actions>
+                <.button phx-disable-with="Changing...">Change Email</.button>
+              </:actions>
+            </.simple_form>
+          </div>
         </div>
-        <div id="otp_form_step2" class="hidden">
-          <.simple_form
-            class="mt-2"
-            for={@otp_form}
-            id="otp_form"
-            phx-submit="update_otp"
-            phx-change="validate_otp"
-          >
-            <.input
-              field={@otp_form[:otp_code]}
-              type="text"
-              inputmode="numeric"
-              pattern="[0-9]*"
-              maxlength="6"
-              label="OTP Code"
-              max={999_999}
-              phx-debounce="blur"
-              autocomplete="off"
-              spellcheck="off"
-              class="w-32"
-              required
-            />
-          </.simple_form>
-        </div>
-      </div>
-    <% else %>
-      <h2 class="text-lg font-semibold leading-8 text-zinc-800 dark:text-zinc-100">Authenticator App</h2>
-      <p>Added: <.time time={@current_user.totp_confirmed_at} /></p>
+      </:item>
 
-      <.form for={@reset_otp_form} phx-submit="reset_otp_secret">
-        <button data-confirm="Are  you sure?">Reset Authentication App</button>
-      </.form>
-    <% end %>
-
-    <button
-      class="text-lg font-semibold leading-8 text-zinc-800"
-      phx-click={JS.toggle(to: "#app-email-change") |> JS.toggle(to: "#app-email-change-intro")}
-    >
-      Change Email Address
-    </button>
-
-    <p id="app-email-change-intro">
-      You can change your email but you'll need to reconfirm the address after you do this.
-      <button
-        class="flex items-center gap-1 px-2 py-1 mt-6 text-xs font-semibold leading-4 rounded-sm text-zinc-800 bg-amber-400"
-        phx-click={JS.toggle(to: "#app-email-change") |> JS.toggle(to: "#app-email-change-intro")}
-      >
-        <span class="flex-grow">Change Email</span>
-        <.icon name={:play} solid class="w-3 h-3" />
-      </button>
-    </p>
-
-    <div class="hidden space-y-12 divide-y" id="app-email-change">
-      <div>
-        <.simple_form
-          for={@email_form}
-          id="email_form"
-          phx-submit="update_email"
-          phx-change="validate_email"
-        >
-          <.input field={@email_form[:email]} type="email" label="Email" required />
-          <.input
-            field={@email_form[:current_password]}
-            name="current_password"
-            id="current_password_for_email"
-            type="password"
-            label="Current password"
-            value={@email_form_current_password}
-            required
-          />
-          <:actions>
-            <.button phx-disable-with="Changing...">Change Email</.button>
-          </:actions>
-        </.simple_form>
-      </div>
-    </div>
-
-    <button
-      class="text-lg font-semibold leading-8 text-zinc-800"
-      phx-click={JS.toggle(to: "#app-password-change") |> JS.toggle(to: "#app-password-change-intro")}
-    >
-      Change Password
-    </button>
-
-    <p id="app-password-change-intro">
+      <:item heading="Change Password">
+      <.p id="app-password-change-intro">
       If you need to change your password remember it must be 12 chars minimum, contain both uppercase and lowercase letters
       as well as numbers and at least one non alpha numeric character.
       <button
@@ -169,7 +154,7 @@ defmodule RedEyeWeb.UserSettingsLive do
         <span class="flex-grow">Change Password</span>
         <.icon name={:play} solid class="w-3 h-3" />
       </button>
-    </p>
+    </.p>
 
     <div id="app-password-change" class="hidden">
       <.simple_form
@@ -207,6 +192,8 @@ defmodule RedEyeWeb.UserSettingsLive do
         </:actions>
       </.simple_form>
     </div>
+      </:item>
+    </.accordion>
     """
   end
 

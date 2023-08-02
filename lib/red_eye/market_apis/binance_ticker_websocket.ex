@@ -25,8 +25,8 @@ defmodule RedEye.MarketApis.BinanceTickerWebsocket do
   # msg =  %{"method" => "SUBSCRIBE", "params" => ["btcusdt@markPrice", "injusdt@markPrice"], "id" => 1237} |> Jason.encode!()
   # RedEye.MarketApis.BinanceTickerWebsocket.send_message(pid, msg)
 
-  # unsub_klines = %{"method" => "UNSUBSCRIBE","params" => ["btcusdt@kline_1m"],"id" => 312}
-  # |> Jason.encode!()
+  # msg = %{"method" => "SUBSCRIBE","params" => ["btcusdt@index", "ethusdt@index"],"id" => 83838}
+  # RedEye.MarketApis.BinanceTickerWebsocket.send_message(pid, msg)
 
   def send_message(pid, map) when is_map(map) do
     send_message(pid, Jason.encode!(map))

@@ -20,8 +20,9 @@ defmodule RedEye.Application do
       RedEyeWeb.Endpoint,
       # Start a worker by calling: RedEye.Worker.start_link(arg)
       # {RedEye.Worker, arg}
-      {Oban, Application.fetch_env!(:red_eye, Oban)}
-      # Binance Websocket API
+      {Oban, Application.fetch_env!(:red_eye, Oban)},
+      # Caching...
+      {RedEye.Cache, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
