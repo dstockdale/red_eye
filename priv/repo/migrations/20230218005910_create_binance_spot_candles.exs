@@ -22,15 +22,15 @@ defmodule RedEye.Repo.Migrations.CreateBinanceSpotCandles do
       timestamps()
     end
 
-    execute("SELECT create_hypertable('binance_spot_candles', 'timestamp')")
     create index(:binance_spot_candles, [:symbol])
     create index(:binance_spot_candles, [:unix_time])
     create unique_index(:binance_spot_candles, [:symbol, :timestamp, :interval])
   end
 
   def down do
-    drop table(:binance_spot_candles)
     drop index(:binance_spot_candles, [:symbol])
+    drop index(:binance_spot_candles, [:unix_time])
     drop unique_index(:binance_spot_candles, [:symbol, :timestamp, :interval])
+    drop table(:binance_spot_candles)
   end
 end

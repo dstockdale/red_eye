@@ -4,8 +4,6 @@
     CandlestickSeries,
     TimeScale,
   } from "svelte-lightweight-charts";
-  import Dexie from "dexie";
-  import { db } from "../db";
 
   let timeScale;
   let candleSeries;
@@ -155,42 +153,15 @@
     return 10 + Math.round(Math.random() * 10000) / 100;
   }
 
-  window.db = db;
-  window.Dexie = Dexie;
-  window.data = data;
-
-  console.log(db);
-
-  // Add the new friend!
-  const id = db.friends.add({
-    name: "Kinni",
-    age: 103,
-  });
-
-  console.log(id);
-
-  // db.candlesticks
-  //   .bulkPut(data)
-  //   .then(function (lastKey) {
-  //     console.log("Done putting 100,000 raindrops all over the place");
-  //     console.log("Last raindrop's id was: " + lastKey); // Will be 100000.
-  //   })
-  //   .catch(Dexie.BulkError, function (e) {
-  //     // Explicitely catching the bulkAdd() operation makes those successful
-  //     // additions commit despite that there were errors.
-  //     console.error(
-  //       "Some raindrops did not succeed. However, " +
-  //         100000 -
-  //         e.failures.length +
-  //         " raindrops was added successfully"
-  //     );
-  //   });
+  console.log(data);
 </script>
 
 <Chart width={600} height={300}>
   <TimeScale
     ref={handleTimeScaleRef}
     on:visibleLogicalRangeChange={handleVisibleLogicalRangeChange}
+    timeVisible={true}
+    secondsVisible={false}
   />
   <CandlestickSeries
     ref={handleSeriesRef}

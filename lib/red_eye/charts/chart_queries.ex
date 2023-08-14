@@ -4,6 +4,8 @@ defmodule RedEye.Charts.ChartQueries do
   """
 
   import Ecto.Query, warn: false
+  import Ecto.Query.Timescaledb
+
   # alias RedEye.Repo
 
   alias RedEye.Charts.Chart
@@ -33,7 +35,7 @@ defmodule RedEye.Charts.ChartQueries do
       select: %{
         time:
           fragment(
-            "cast(extract(epoch from time_bucket(?, timestamp)) AS BIGINT)",
+            "cast(extract(epoch from time_bucket(?, timestamp)) AS BIGINT) AS time",
             ^interval
           ),
         open: fragment("FIRST(open, timestamp)"),

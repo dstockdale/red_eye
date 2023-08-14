@@ -17,7 +17,7 @@ defmodule RedEyeWeb.ChartLive.Show do
     chart = Charts.get_chart!(id)
 
     candles =
-      RedEye.MarketData.list_binance_candles_for_chart(chart.binance_symbol.symbol, "1 hour")
+      RedEye.MarketData.list_binance_candles_for_chart(chart.binance_symbol.symbol, "4 hour")
 
     {:noreply,
      socket
@@ -35,6 +35,11 @@ defmodule RedEyeWeb.ChartLive.Show do
     {:noreply,
      socket
      |> assign(:live_price, Decimal.new(pricing[:last_price]))}
+  end
+
+  def handle_info({:chart_updated, _chart}, socket) do
+    # todo ui to inform something updated
+    {:noreply, socket}
   end
 
   defp page_title(:show), do: "Show Chart"

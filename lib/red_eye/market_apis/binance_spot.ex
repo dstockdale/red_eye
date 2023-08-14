@@ -12,8 +12,7 @@ defmodule RedEye.MarketApis.BinanceSpot do
   def fetch(start_time, symbol, interval) do
     params = [
       symbol: symbol,
-      startTime: start_time,
-      endTime: end_time(start_time),
+      startTime: to_string(start_time),
       interval: interval,
       limit: 1000
     ]
@@ -38,8 +37,6 @@ defmodule RedEye.MarketApis.BinanceSpot do
 
   @spec map_entries(list, {String, String}) :: list
   def map_entries(list, {symbol, interval}) do
-    IO.inspect(list)
-
     list
     |> Enum.map(fn item ->
       %{
@@ -62,13 +59,6 @@ defmodule RedEye.MarketApis.BinanceSpot do
         updated_at: now()
       }
     end)
-  end
-
-  def end_time(start_time) do
-    start_time
-    |> DateTime.from_unix!(:millisecond)
-    |> DateTime.add(1000, :minute)
-    |> DateTime.to_unix(:millisecond)
   end
 
   defp timestamp(item, i) do
