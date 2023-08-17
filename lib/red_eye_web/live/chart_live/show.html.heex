@@ -1,15 +1,16 @@
-<.header>
+<.h2 class="mt-0 mb-1">
   Chart: <%= String.capitalize(@chart.exchange) %> / <%= @chart.binance_symbol.symbol %>
   <span class="font-mono"><%= Number.Currency.number_to_currency(@live_price) %></span>
-  <p>
-    <.link
-      navigate={~p"/charts"}
-      class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700 dark:text-slate-400"
-    >
-      &lt; Back to charts
-    </.link>
-  </p>
-</.header>
+</.h2>
+
+<.p>
+  <.link
+    navigate={~p"/charts"}
+    class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700 dark:text-slate-400"
+  >
+    &lt; Back to charts
+  </.link>
+</.p>
 
 <section id="lightweight-svelte-container" phx-update="ignore">
   <div
@@ -22,11 +23,7 @@
   </div>
 </section>
 
-<.modal
-  :if={@live_action == :edit}
-  id="chart-modal"
-  show
->
+<.modal :if={@live_action == :edit} id="chart-modal" show>
   <.live_component
     module={RedEyeWeb.ChartLive.FormComponent}
     id={@chart.id}

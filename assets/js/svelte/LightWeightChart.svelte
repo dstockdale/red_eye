@@ -1,18 +1,29 @@
 <script>
+  import { CrosshairMode, ColorType } from "lightweight-charts";
   import {
     Chart,
     CandlestickSeries,
+    LineSeries,
     TimeScale,
   } from "svelte-lightweight-charts";
 
   let timeScale;
   let candleSeries;
+  let swingSeries;
 
   const period = {
     timeFrom: { day: 1, month: 1, year: 2018 },
     timeTo: { day: 1, month: 1, year: 2019 },
   };
+
+  // let debounceTimer;
+  // const debounce = (callback, time) => {
+  //   window.clearTimeout(debounceTimer);
+  //   debounceTimer = window.setTimeout(callback, time);
+  // }
+
   export let data;
+  export let context;
   // let data = generateBarsData(period);
 
   let timer = null;
@@ -27,35 +38,20 @@
     const logicalRange = timeScale.getVisibleLogicalRange();
     const barsInfo = candleSeries.barsInLogicalRange(logicalRange);
 
-    // timer = setTimeout(() => {
-    //   const logicalRange = timeScale.getVisibleLogicalRange();
-    //   if (logicalRange !== null) {
-    //     const barsInfo = candleSeries.barsInLogicalRange(logicalRange);
-    //     if (barsInfo !== null && barsInfo.barsBefore < 10) {
-    //       const firstTime = getBusinessDayBeforeCurrentAt(data[0].time, 1);
-    //       const lastTime = getBusinessDayBeforeCurrentAt(
-    //         firstTime,
-    //         Math.max(100, -barsInfo.barsBefore + 100)
-    //       );
-    //       const newPeriod = {
-    //         timeFrom: lastTime,
-    //         timeTo: firstTime,
-    //       };
-    //       data = [...generateBarsData(newPeriod), ...data];
-    //     }
-    //   }
-    //   timer = null;
-    // }, 500);
-
-    console.log(logicalRange);
+    context.pushEvent(barsInfo);
     console.log(barsInfo);
   }
 
   function handleTimeScaleRef(api) {
     timeScale = api;
   }
+
   function handleSeriesRef(api) {
     candleSeries = api;
+  }
+
+  function handleLineSeriesRef(api) {
+    swingSeries = api;
   }
 
   function getBusinessDayBeforeCurrentAt(date, daysDelta) {
@@ -153,10 +149,37 @@
     return 10 + Math.round(Math.random() * 10000) / 100;
   }
 
-  console.log(data);
+  const options = {
+    width: 750,
+    height: 400,
+    layout: {
+      background: {
+        type: ColorType.Solid,
+        color: "#FFFFFF",
+      },
+      textColor: "rgba(33, 56, 77, 1)",
+    },
+    grid: {
+      horzLines: {
+        color: "#F0F3FA",
+      },
+      vertLines: {
+        color: "#F0F3FA",
+      },
+    },
+    crosshair: {
+      mode: CrosshairMode.Normal,
+    },
+    timeScale: {
+      borderColor: "rgba(197, 203, 206, 1)",
+    },
+    handleScroll: {
+      vertTouchDrag: false,
+    },
+  };
 </script>
 
-<Chart width={600} height={300}>
+<Chart {...options}>
   <TimeScale
     ref={handleTimeScaleRef}
     on:visibleLogicalRangeChange={handleVisibleLogicalRangeChange}

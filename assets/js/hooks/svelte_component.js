@@ -12,8 +12,8 @@ const SvelteComponent = {
     const el = this.el;
     const props = getProps(this.el.dataset.props);
     const component = SvelteComponents[name];
-    console.log(props);
-    new component({ target: el, props: props });
+
+    new component({ target: el, props: { ...props, context: this } });
   },
 };
 

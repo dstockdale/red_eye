@@ -60,6 +60,12 @@ defmodule RedEyeWeb.Router do
     end
   end
 
+  scope "/api", RedEyeWeb do
+    pipe_through([:api])
+
+    resources "/charts", ChartController, only: [:index]
+  end
+
   ## Authentication routes
 
   scope "/", RedEyeWeb do

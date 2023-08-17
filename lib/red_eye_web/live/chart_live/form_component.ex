@@ -7,19 +7,16 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <.header>
+      <.h2>
         <%= @title %>
-        <:subtitle>Use this form to manage chart records in your database.</:subtitle>
-      </.header>
+      </.h2>
 
-      <.simple_form
-        for={@form}
-        id="chart-form"
-        phx-target={@myself}
-        phx-change="validate"
-        phx-submit="save"
-      >
-        <.input field={@form[:exchange]} type="select" options={@exchanges} label="Exchange" />
+      <.p>
+        Add a symbol to import and study
+      </.p>
+
+      <.form for={@form} id="chart-form" phx-target={@myself} phx-change="validate" phx-submit="save">
+        <.field field={@form[:exchange]} type="select" options={@exchanges} label="Exchange" />
 
         <.live_select
           field={@form[:binance_symbol_id]}
@@ -28,11 +25,10 @@ defmodule RedEyeWeb.ChartLive.FormComponent do
           options={[]}
           phx-target={@myself}
         />
-
-        <:actions>
-          <.button phx-disable-with="Saving...">Save Chart</.button>
-        </:actions>
-      </.simple_form>
+        <div class="flex justify-end mt-6">
+          <.button phx-disable-with="Saving..." label="Submit" />
+        </div>
+      </.form>
     </div>
     """
   end

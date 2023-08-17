@@ -3,7 +3,9 @@ defmodule RedEyeWeb.ChartLive.Show do
 
   alias RedEye.Charts
 
+  @intervals ["15 minute", "30 minute", "1 hour", "4 hour", "1 day"]
   @def_pricing %{last_price: 0}
+  @def_interval "4 hour"
 
   @impl true
   def mount(_params, _session, socket) do
@@ -39,6 +41,13 @@ defmodule RedEyeWeb.ChartLive.Show do
 
   def handle_info({:chart_updated, _chart}, socket) do
     # todo ui to inform something updated
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(%{"from" => from, "to" => to}, _params, socket) do
+    IO.inspect(from)
+    IO.inspect(to)
     {:noreply, socket}
   end
 

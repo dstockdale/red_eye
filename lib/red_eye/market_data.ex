@@ -39,6 +39,81 @@ defmodule RedEye.MarketData do
     |> Repo.all()
   end
 
+  def list_binance_candles_for_chart_for_fe(symbol, period \\ "4 hours") do
+    list_binance_candles_for_chart(symbol, period)
+    |> format_for_fe()
+  end
+
+  defp format_for_fe(list) do
+    list
+    |> Enum.map(fn item ->
+      %{
+        time: item.time,
+        open: Decimal.to_float(item.open),
+        close: Decimal.to_float(item.close),
+        high: Decimal.to_float(item.high),
+        low: Decimal.to_float(item.low)
+      }
+    end)
+  end
+
+  def candle_chart(symbol, interval) do
+    end_time = most_recent_candle(symbol)
+    candle_chart(symbol, interval, %{from_end_time: end_time})
+  end
+
+  def candle_chart(symbol, interval, %{from_end_time: end_time}) do
+    opts = start_and_end_from_end_time(end_time)
+    candle_chart(symbol, interval, opts)
+  end
+
+  def candle_chart(
+        symbol,
+        interval,
+        %{"start_time" => _start_time, "end_time" => _end_time} = opts
+      ) do
+    RedEye.Charts.ChartQueries.binance_spot_time_bucket(symbol, interval, opts)
+    |> Repo.all()
+  end
+
+  def swing_chart(symbol, interval) do
+    end_time = most_recent_candle(symbol)
+    swing_chart(symbol, interval, %{from_end_time: end_time})
+  end
+
+  def swing_chart(symbol, interval, %{from_end_time: end_time}) do
+    opts = start_and_end_from_end_time(end_time)
+    swing_chart(symbol, interval, opts)
+  end
+
+  def swing_chart(
+        symbol,
+        interval,
+        %{"start_time" => _start_time, "end_time" => _end_time} = opts
+      ) do
+    RedEye.Charts.SwingQueries.binance_spot_time_bucket(symbol, interval, opts)
+    |> RedEye.Charts.SwingQueries.add_previous_high_low()
+    |> RedEye.Charts.SwingQueries.add_candle_type()
+    |> RedEye.Charts.SwingQueries.add_prev_candle_types()
+    |> RedEye.Charts.SwingQueries.add_swing_grp()
+    |> RedEye.Charts.SwingQueries.add_swing_dir()
+    |> RedEye.Charts.SwingQueries.add_prev_next_swing_dir()
+    |> RedEye.Charts.SwingQueries.add_pivots()
+    |> Repo.all()
+  end
+
+  def most_recent_candle(symbol) do
+    RedEye.Charts.ChartQueries.most_recent_candle_dt(symbol)
+    |> Repo.one()
+    |> List.first()
+  end
+
+  def start_and_end_from_end_time(end_time, diff \\ -10, period \\ :day) do
+    start_time = DateTime.add(end_time, diff, period)
+
+    %{"start_time" => start_time, "end_time" => end_time}
+  end
+
   @doc """
   Creates a binance_spot_candle.
 

@@ -10,11 +10,4 @@ defmodule RedEyeWeb.ChartLive.New do
      |> assign(:page_title, "New Chart")
      |> assign(:chart, %Chart{})}
   end
-
-  @impl true
-  def handle_event("change", params, socket) do
-    IO.inspect(params)
-
-    {:noreply, socket}
-  end
 end

@@ -1,5 +1,6 @@
 defmodule RedEye.Charts.SwingQueries do
   import Ecto.Query, warn: false
+  alias RedEye.MarketData.BinanceSpotCandle
 
   @candle_types """
   CASE WHEN high > previous_high 	AND low > previous_low THEN 'up'
@@ -20,6 +21,32 @@ defmodule RedEye.Charts.SwingQueries do
     WHEN swing_dir = 'outside' AND prev_swing_dir = 'outside' AND next_swing_dir = 'down' THEN high
   END
   """
+
+  def binance_spot_time_bucket(symbol, period, %{
+        "start_time" => start_time,
+        "end_time" => end_time
+      }) do
+    interval = RedEye.Charts.ChartQueries.parse_interval(period)
+
+    from(s in BinanceSpotCandle,
+      where: [symbol: ^symbol],
+      where: fragment("timestamp BETWEEN ? AND ?", ^start_time, ^end_time),
+      group_by: [fragment("time")],
+      order_by: [asc: fragment("time")],
+      select: %{
+        time:
+          fragment(
+            "cast(extract(epoch from time_bucket(?, timestamp)) AS BIGINT)",
+            ^interval
+          ),
+        open: fragment("FIRST(open, timestamp)"),
+        high: max(s.high),
+        low: min(s.low),
+        close: fragment("LAST(close, timestamp)"),
+        volume: sum(s.volume)
+      }
+    )
+  end
 
   def add_pivots(query) do
     from(s in subquery(query),

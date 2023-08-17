@@ -1,5 +1,6 @@
 defmodule RedEye.MarketData.BinanceCandleEvent do
   use Ecto.Schema
+  import Ecto.Changeset
 
   @moduledoc """
   https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md#klinecandlestick-streams
@@ -52,5 +53,43 @@ defmodule RedEye.MarketData.BinanceCandleEvent do
     field :taker_buy_quote_asset_volume, :decimal
     field :volume, :decimal
     field :is_kline_closed, :boolean, default: false
+  end
+
+  def changeset(binance_candle_event, attrs) do
+    binance_candle_event
+    |> cast(attrs, [
+      :timestamp,
+      :symbol,
+      :interval,
+      :unix_time,
+      :high,
+      :low,
+      :open,
+      :close,
+      :volume,
+      :kline_open_time,
+      :kline_close_time,
+      :quote_asset_volume,
+      :number_of_trades,
+      :taker_buy_base_asset_volume,
+      :taker_buy_quote_asset_volume
+    ])
+    |> validate_required([
+      :timestamp,
+      :symbol,
+      :interval,
+      :unix_time,
+      :high,
+      :low,
+      :open,
+      :close,
+      :volume,
+      :kline_open_time,
+      :kline_close_time,
+      :quote_asset_volume,
+      :number_of_trades,
+      :taker_buy_base_asset_volume,
+      :taker_buy_quote_asset_volume
+    ])
   end
 end

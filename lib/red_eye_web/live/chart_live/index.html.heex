@@ -1,7 +1,10 @@
-<.h2 class="mt-0 mb-10">
+<.h2 class="mt-0 mb-1">
   Monitoring Symbols to backtest / trade
 </.h2>
 
+<div class="flex flex-col items-end">
+  <.button link_type="live_redirect" color="white" size="md" label="New" to={~p"/charts/new"} />
+</div>
 <.datatable
   id="charts"
   rows={@streams.charts}
@@ -14,12 +17,7 @@
   </:col>
 </.datatable>
 
-<.modal
-  :if={@live_action in [:new, :edit]}
-  id="chart-modal"
-  show
-  on_cancel={JS.navigate(~p"/charts")}
->
+<.modal :if={@live_action in [:new, :edit]} id="chart-modal">
   <.live_component
     module={RedEyeWeb.ChartLive.FormComponent}
     id={@chart.id || :new}

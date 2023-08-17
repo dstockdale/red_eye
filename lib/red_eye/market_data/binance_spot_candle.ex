@@ -6,6 +6,7 @@ defmodule RedEye.MarketData.BinanceSpotCandle do
   @primary_key false
   @foreign_key_type :binary_id
   schema "binance_spot_candles" do
+    field :time, :utc_datetime, virtual: true
     field :timestamp, :utc_datetime, primary_key: true
     field :symbol, :string, primary_key: true
     field :interval, :string, primary_key: true
@@ -29,6 +30,7 @@ defmodule RedEye.MarketData.BinanceSpotCandle do
   def changeset(binance_spot_candle, attrs) do
     binance_spot_candle
     |> cast(attrs, [
+      :time,
       :timestamp,
       :symbol,
       :interval,

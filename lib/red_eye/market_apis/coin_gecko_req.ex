@@ -17,8 +17,8 @@ defmodule RedEye.MarketApis.CoinGeckoReq do
   end
 
   def fetch_all(page \\ 1) do
-    Map.merge(@params, %{page: page})
-    |> fetch()
+    %{body: body} = Map.merge(@params, %{page: page}) |> fetch()
+    body
   end
 
   def fetch_stable_coins do
