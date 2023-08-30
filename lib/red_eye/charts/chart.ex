@@ -9,6 +9,13 @@ defmodule RedEye.Charts.Chart do
     field :earliest_timestamp, :utc_datetime
     belongs_to :binance_symbol, RedEye.MarketData.BinanceSymbol
 
+    embeds_one :ticker, Ticker do
+      field :last_price, :decimal, default: 0
+      field :price_change, :decimal, default: 0
+      field :price_change_percent, :decimal, default: 0
+      field :updated_at, :utc_datetime
+    end
+
     timestamps()
   end
 

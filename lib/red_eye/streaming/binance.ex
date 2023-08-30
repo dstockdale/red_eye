@@ -1,39 +1,53 @@
-defmodule RedEye.MarketApis.BinanceTickerWebsocket do
+defmodule RedEye.Streaming.Binance do
   use GenServer
 
   require Logger
   require Mint.HTTP
 
+  alias RedEye.MarketData.Ticker
+
   defstruct [:conn, :websocket, :request_ref, :caller, :status, :resp_headers, :closing?]
 
-  # wss://ws-api.binance.com:443/ws-api/v3
-  # "wss://stream.binance.com:443/ws/btcusdt@ticker"
-  # <symbol>@kline_<interval>
+  @url "wss://stream.binance.com:443/stream"
 
-  # "wss://stream.binance.com:443/stream?streams=btcusdt@kline_1m/injusdt@kline_1m"
-  def connect(url) do
-    with {:ok, socket} <- GenServer.start_link(__MODULE__, []),
-         {:ok, :connected} <- GenServer.call(socket, {:connect, url}) do
+  def subscribe(list, id) when is_list(list) and is_integer(id) do
+    %{"method" => "SUBSCRIBE", "params" => list, "id" => id}
+    |> send_message()
+  end
+
+  def unsubscribe(list, id) when is_list(list) and is_integer(id) do
+    %{"method" => "UNSUBSCRIBE", "params" => list, "id" => id}
+    |> send_message()
+  end
+
+  def send_message(map) when is_map(map) do
+    send_message(Jason.encode!(map))
+  end
+
+  def send_message(text) do
+    GenServer.call(__MODULE__, {:send_text, text})
+  end
+
+  def die! do
+    Process.whereis(__MODULE__)
+    |> Process.exit(:kill)
+  end
+
+  def status do
+    pid = Process.whereis(__MODULE__)
+    IO.inspect(pid, label: "pid")
+
+    pid
+    |> :sys.get_state()
+    |> IO.inspect(label: "state")
+  end
+
+  def start_link(args \\ []) do
+    with {:ok, socket} <- GenServer.start_link(__MODULE__, args, name: __MODULE__),
+         {:ok, :connected} <- GenServer.call(socket, {:connect, @url}) do
+      RedEye.Streaming.Watcher.auto_subscribe()
       {:ok, socket}
     end
-  end
-
-  def close_connection(pid) do
-    GenServer.call(pid, {:close, nil, nil})
-  end
-
-  # msg =  %{"method" => "SUBSCRIBE", "params" => ["btcusdt@markPrice", "injusdt@markPrice"], "id" => 1237} |> Jason.encode!()
-  # RedEye.MarketApis.BinanceTickerWebsocket.send_message(pid, msg)
-
-  # msg = %{"method" => "SUBSCRIBE","params" => ["btcusdt@index", "ethusdt@index"],"id" => 83838}
-  # RedEye.MarketApis.BinanceTickerWebsocket.send_message(pid, msg)
-
-  def send_message(pid, map) when is_map(map) do
-    send_message(pid, Jason.encode!(map))
-  end
-
-  def send_message(pid, text) do
-    GenServer.call(pid, {:send_text, text})
   end
 
   @impl GenServer
@@ -41,14 +55,18 @@ defmodule RedEye.MarketApis.BinanceTickerWebsocket do
     {:ok, %__MODULE__{}}
   end
 
+  def close_connection do
+    GenServer.cast(__MODULE__, :close)
+  end
+
+  @impl GenServer
+  def handle_cast(:close, state) do
+    do_close(state)
+  end
+
   @impl GenServer
   def handle_call({:send_text, text}, _from, state) do
     {:ok, state} = send_frame(state, {:text, text})
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:close, _, _} = close_frame, _from, state) do
-    {:ok, state} = send_frame(state, close_frame)
     {:reply, :ok, state}
   end
 
@@ -193,25 +211,31 @@ defmodule RedEye.MarketApis.BinanceTickerWebsocket do
   end
 
   def handle_msg(%{
-        "e" => "24hrTicker",
-        "s" => symbol,
-        "p" => price_change,
-        "P" => price_change_percent,
-        "c" => last_price
+        "data" => %{
+          "e" => "24hrTicker",
+          "s" => symbol,
+          "p" => price_change,
+          "P" => price_change_percent,
+          "c" => last_price
+        }
       }) do
-    %{
-      "type" => "24hrTicker",
-      symbol => %{
-        price_change: price_change,
-        price_change_percent: price_change_percent,
-        last_price: last_price
-      }
-    }
+    Ticker.new(
+      symbol: symbol,
+      price_change: price_change,
+      price_change_percent: price_change_percent,
+      last_price: last_price
+    )
+    |> stash()
     |> broadcast(:ticker)
   end
 
   def handle_msg(msg) do
     Logger.info("Incoming msg ***: #{inspect(msg)}")
+  end
+
+  defp stash(%Ticker{symbol: symbol} = ticker) do
+    RedEye.MarketData.Bucket.put(:symbols, symbol, ticker)
+    ticker
   end
 
   defp do_close(state) do
@@ -227,11 +251,11 @@ defmodule RedEye.MarketApis.BinanceTickerWebsocket do
     put_in(state.caller, nil)
   end
 
-  defp broadcast(event, type) do
+  defp broadcast(data, event) do
     Phoenix.PubSub.broadcast(
       RedEye.PubSub,
       "charts",
-      {event, type}
+      {event, data}
     )
   end
 end

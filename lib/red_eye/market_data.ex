@@ -229,4 +229,14 @@ defmodule RedEye.MarketData do
     BinanceSpotQueries.gaps_query(symbol)
     |> Repo.all()
   end
+
+  def distinct_symbols do
+    from(s in BinanceSpotCandle,
+      select: [s.symbol],
+      distinct: :symbol,
+      order_by: :symbol
+    )
+    |> Repo.all()
+    |> List.flatten()
+  end
 end

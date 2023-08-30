@@ -23,7 +23,7 @@
   </div>
 </section>
 
-<.modal :if={@live_action == :edit} id="chart-modal" show>
+<.modal :if={@live_action == :edit} id="chart-modal">
   <.live_component
     module={RedEyeWeb.ChartLive.FormComponent}
     id={@chart.id}

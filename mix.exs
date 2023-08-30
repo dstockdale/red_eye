@@ -67,7 +67,8 @@ defmodule RedEye.MixProject do
       {:petal_components, "~> 1.2"},
       {:phoenix_live_react, "~> 0.4"},
       {:nebulex, "~> 2.5"},
-      {:decorator, "~> 1.4"}
+      {:decorator, "~> 1.4"},
+      {:ecto_psql_extras, "~> 0.6"}
     ]
   end
 

@@ -38,7 +38,7 @@
     const logicalRange = timeScale.getVisibleLogicalRange();
     const barsInfo = candleSeries.barsInLogicalRange(logicalRange);
 
-    context.pushEvent(barsInfo);
+    context.pushEvent("candle:bars-info", barsInfo);
     console.log(barsInfo);
   }
 

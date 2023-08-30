@@ -21,8 +21,11 @@ defmodule RedEye.Application do
       # Start a worker by calling: RedEye.Worker.start_link(arg)
       # {RedEye.Worker, arg}
       {Oban, Application.fetch_env!(:red_eye, Oban)},
+      # Key, value store...
+      RedEye.Bucket.Supervisor,
+      RedEye.Streaming.Supervisor,
       # Caching...
-      {RedEye.Cache, []}
+      RedEye.Cache
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

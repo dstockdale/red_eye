@@ -49,7 +49,15 @@
       </aside>
       <main class="pb-60">
         <div class="flex">
-          <div class="flex-grow"></div>
+          <div class="flex items-center justify-center flex-grow">
+            <div
+              phx-update="ignore"
+              id="date_time"
+              class="flex font-mono text-sm leading-4 align-middle"
+            >
+              ...
+            </div>
+          </div>
           <div class="flex items-center mt-1">
             <.dropdown>
               <:trigger_element>
@@ -59,15 +67,17 @@
                 </div>
               </:trigger_element>
               <.dropdown_menu_item link_type="a" to={~p"/users/settings"}>
-                <.icon name={:cog_6_tooth} class="w-5 h-5" />
-                Settings
+                <.icon name={:cog_6_tooth} class="w-5 h-5" /> Settings
               </.dropdown_menu_item>
               <.dropdown_menu_item link_type="a" to={~p"/users/log_out"} method={:delete}>
-                <.icon name={:arrow_right_on_rectangle} class="w-5 h-5" />
-                Log out
+                <.icon name={:arrow_right_on_rectangle} class="w-5 h-5" /> Log out
               </.dropdown_menu_item>
             </.dropdown>
-            <button class="px-4 dark:hover:text-amber-500 hover:text-amber-700" id="dark-toggle" phx-hook="Darkness">
+            <button
+              class="px-4 dark:hover:text-amber-500 hover:text-amber-700"
+              id="dark-toggle"
+              phx-hook="Darkness"
+            >
               <.icon name={:sun} solid class="w-5 h-5 mt-1" />
             </button>
           </div>

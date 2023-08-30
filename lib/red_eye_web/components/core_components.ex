@@ -467,6 +467,7 @@ defmodule RedEyeWeb.CoreComponents do
 
   slot :col, required: true do
     attr(:label, :string)
+    attr(:class, :string)
   end
 
   slot(:action, doc: "the slot for showing user actions in the last table column")
@@ -482,7 +483,12 @@ defmodule RedEyeWeb.CoreComponents do
       <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-500">
         <thead>
           <tr>
-            <th :for={col <- @col} class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white lg:table-cell"><%= col[:label] %></th>
+            <th
+              :for={col <- @col}
+              class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white lg:table-cell"
+            >
+              <%= col[:label] %>
+            </th>
           </tr>
         </thead>
         <tbody
@@ -490,11 +496,19 @@ defmodule RedEyeWeb.CoreComponents do
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
           class="relative text-sm leading-6 border-t divide-y divide-zinc-100 dark:divide-gray-500 border-zinc-200 dark:border-zinc-500 text-zinc-700 dark:text-zinc-300"
         >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50 dark:hover:bg-zinc-600">
+          <tr
+            :for={row <- @rows}
+            id={@row_id && @row_id.(row)}
+            class="group hover:bg-zinc-50 dark:hover:bg-zinc-600"
+          >
             <td
               :for={{col, i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
-              class={["relative p-0", @row_click && "hover:cursor-pointer"]}
+              class={[
+                "relative p-0",
+                @row_click && "hover:cursor-pointer",
+                col[:class] && col[:class]
+              ]}
             >
               <div class="block px-3 py-4">
                 <span class={["relative", i == 0 && "font-semibold text-zinc-900 dark:text-zinc-300"]}>
@@ -502,7 +516,6 @@ defmodule RedEyeWeb.CoreComponents do
                 </span>
               </div>
             </td>
-
           </tr>
         </tbody>
       </table>
@@ -779,8 +792,7 @@ defmodule RedEyeWeb.CoreComponents do
           </div>
           <div class="text-sm font-bold text-green-600">0.3%</div>
         </div>
-        <.button size="xs" icon={:pause} tooltip="Pause this strategy?" color="gray" />
-
+        <.button size="xs" icon={:pause} color="gray" />
       </div>
       <div class="flex gap-2">
         <span class="text-xs font-semibold text-yellow-400">Binance</span>
