@@ -23,6 +23,8 @@ defmodule RedEye.MarketApis do
     import_binance_spot_candles_jobs(symbol, interval, timestamps)
   end
 
+  @spec import_binance_spot_candles(integer(), String.t(), String.t()) ::
+          {:ok, any()} | {:error, map()}
   def import_binance_spot_candles(start_time, symbol, interval) do
     BinanceSpot.fetch(start_time, symbol, interval)
     |> BinanceSpot.map_entries({symbol, interval})

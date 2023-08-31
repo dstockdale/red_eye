@@ -599,6 +599,37 @@ defmodule RedEyeWeb.CoreComponents do
     """
   end
 
+  attr(:asset, :string, required: true)
+
+  def crypto_icon(assigns) do
+    ~H"""
+    <div class="inline-block w-8 h-8">
+      <i
+        style={"background-image: url(/assets/crypto/#{String.downcase(@asset)}.svg)"}
+        class="block w-8 h-8 bg-no-repeat"
+      />
+    </div>
+    """
+  end
+
+  attr(:base_asset, :string, required: true)
+  attr(:quote_asset, :string, required: true)
+
+  def crypto_icons(assigns) do
+    ~H"""
+    <div class="relative inline-block h-8 w-11">
+      <i
+        style={"background-image: url(/assets/crypto/#{String.downcase(@quote_asset)}.svg)"}
+        class="absolute right-0 block w-8 h-8 bg-no-repeat"
+      />
+      <i
+        style={"background-image: url(/assets/crypto/#{String.downcase(@base_asset)}.svg)"}
+        class="absolute left-0 block w-8 h-8 bg-no-repeat"
+      />
+    </div>
+    """
+  end
+
   # @doc """
   # Renders a [Heroicon](https://heroicons.com).
 

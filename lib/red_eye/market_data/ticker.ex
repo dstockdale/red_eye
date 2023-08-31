@@ -1,4 +1,6 @@
 defmodule RedEye.MarketData.Ticker do
+  @derive {Jason.Encoder,
+           only: [:symbol, :price_change, :price_change_percent, :last_price, :updated_at]}
   defstruct [
     :symbol,
     price_change: Decimal.new(0),

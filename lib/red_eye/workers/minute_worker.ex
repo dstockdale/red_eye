@@ -4,20 +4,13 @@ defmodule RedEye.Workers.MinuteWorker do
   @impl Oban.Worker
   @spec perform(Oban.Job.t()) :: :ok
   def perform(_args) do
-    symbols = RedEye.MarketData.find_binance_candle_symbols()
-
-    symbols
+    RedEye.MarketData.find_binance_candle_symbols()
     |> Enum.map(fn symbol ->
-      start_date =
-        RedEye.MarketData.find_most_recent_binance_spot_candle(symbol)
-        |> DateTime.add(-1, :day)
-        |> DateTime.to_date()
+      unixtime =
+        RedEye.MarketData.most_recent_candle(symbol)
+        |> DateTime.to_unix(:millisecond)
 
-      RedEye.MarketApis.import_binance_spot_candles_from_date(
-        start_date,
-        symbol,
-        "1m"
-      )
+      RedEye.MarketApis.import_binance_spot_candles(unixtime, symbol, "1m")
     end)
 
     :ok

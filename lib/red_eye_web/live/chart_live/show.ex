@@ -27,7 +27,7 @@ defmodule RedEyeWeb.ChartLive.Show do
     chart = Charts.get_chart!(id)
 
     symbol = chart.binance_symbol.symbol
-    candles = RedEye.MarketData.list_binance_candles_for_chart(symbol, @def_interval)
+    candles = RedEye.MarketData.candle_chart(symbol, @def_interval)
     ticker = get_from_bucket(symbol)
 
     {:noreply,
@@ -35,6 +35,7 @@ defmodule RedEyeWeb.ChartLive.Show do
      |> assign(:page_title, page_title(socket.assigns.live_action))
      |> assign(:current_symbol, symbol)
      |> assign(:live_price, ticker.last_price)
+     |> assign(:ticker, ticker)
      |> assign(:chart, chart)
      |> assign(:chart_data, candles)
      |> assign_new(:intervals, fn -> @intervals end)}
@@ -47,9 +48,11 @@ defmodule RedEyeWeb.ChartLive.Show do
       ) do
     {:noreply,
      socket
-     |> assign(:live_price, ticker.last_price)}
+     |> assign(:live_price, ticker.last_price)
+     |> add_ticker(ticker)}
   end
 
+  # Ignore tickers that aren't our current symbol
   def handle_info({:ticker, %Ticker{}}, socket) do
     {:noreply, socket}
   end
@@ -62,6 +65,18 @@ defmodule RedEyeWeb.ChartLive.Show do
   @impl true
   def handle_event("candle:bars-info", %{"from" => _from, "to" => _to}, socket) do
     {:noreply, socket}
+  end
+
+  def market_direction(val) when is_number(val) do
+    if val > 0, do: :up, else: :down
+  end
+
+  def market_direction(_val), do: :up
+
+  defp add_ticker(socket, ticker) do
+    socket = assign(socket, :ticker, ticker)
+
+    push_event(socket, "update-ticker", ticker)
   end
 
   defp page_title(:show), do: "Show Chart"

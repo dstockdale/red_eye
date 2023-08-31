@@ -11,12 +11,12 @@
   row_click={fn {_id, chart} -> JS.navigate(~p"/charts/#{chart}") end}
 >
   <:col :let={{_id, chart}} label="Symbol">
-    <span class="text-lg font-bold"><%= chart.binance_symbol.symbol %></span> <%= String.capitalize(
-      chart.exchange
-    ) %>
-
-    <.time time={chart.earliest_timestamp} />
+    <div class="flex items-center gap-4">
+      <.crypto_icons quote_asset="usdt" base_asset={chart.binance_symbol.base_asset} />
+      <div class="text-lg font-bold"><%= chart.binance_symbol.symbol %></div>
+    </div>
   </:col>
+
   <:col :let={{_id, chart}} label="" class="text-right">
     <div class="text-lg font-bold">
       <%= Number.Currency.number_to_currency(chart.ticker.last_price) %>

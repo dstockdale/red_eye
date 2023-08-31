@@ -1,16 +1,26 @@
-<.h2 class="mt-0 mb-1">
-  Chart: <%= String.capitalize(@chart.exchange) %> / <%= @chart.binance_symbol.symbol %>
-  <span class="font-mono"><%= Number.Currency.number_to_currency(@live_price) %></span>
-</.h2>
-
-<.p>
+<div class="flex items-center gap-4 mb-6">
   <.link
     navigate={~p"/charts"}
-    class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700 dark:text-slate-400"
+    title="Back"
+    class="block text-sm font-semibold leading-6 text-right text-zinc-900 hover:text-zinc-700 dark:text-slate-400"
   >
-    &lt; Back to charts
+    <.icon name={:chevron_left} solid class="w-5 h-5" />
   </.link>
-</.p>
+  <.crypto_icons quote_asset="usdt" base_asset={@chart.binance_symbol.base_asset} />
+  <div class="text-2xl font-bold text-gray-800 dark:text-white">
+    <%= @chart.binance_symbol.symbol %>
+  </div>
+  <div class="text-2xl font-bold text-gray-800 dark:text-white">
+    <%= Number.Currency.number_to_currency(@ticker.last_price) %>
+  </div>
+  <div class={[
+    "text-md",
+    market_direction(@ticker.price_change) == :up && "text-emerald-700 font-semibold",
+    market_direction(@ticker.price_change) == :down && "text-red-600 font-semibold"
+  ]}>
+    <%= @ticker.price_change %> <%= @ticker.price_change_percent %>&#37;
+  </div>
+</div>
 
 <section id="lightweight-svelte-container" phx-update="ignore">
   <div

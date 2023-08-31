@@ -39,24 +39,6 @@ defmodule RedEye.MarketData do
     |> Repo.all()
   end
 
-  def list_binance_candles_for_chart_for_fe(symbol, period \\ "4 hours") do
-    list_binance_candles_for_chart(symbol, period)
-    |> format_for_fe()
-  end
-
-  defp format_for_fe(list) do
-    list
-    |> Enum.map(fn item ->
-      %{
-        time: item.time,
-        open: Decimal.to_float(item.open),
-        close: Decimal.to_float(item.close),
-        high: Decimal.to_float(item.high),
-        low: Decimal.to_float(item.low)
-      }
-    end)
-  end
-
   def candle_chart(symbol, interval) do
     end_time = most_recent_candle(symbol)
     candle_chart(symbol, interval, %{from_end_time: end_time})

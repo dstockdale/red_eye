@@ -9,6 +9,7 @@ defmodule RedEye.MarketApis.BinanceSpot do
     Req.new(base_url: @base_url)
   end
 
+  @spec fetch(integer(), String.t(), String.t()) :: {:ok, map()} | {:error, map()}
   def fetch(start_time, symbol, interval) do
     params = [
       symbol: symbol,
