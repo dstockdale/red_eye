@@ -3,6 +3,7 @@ defmodule RedEyeWeb.ChartLive.Index do
 
   alias RedEye.Charts
   alias RedEye.MarketData.Ticker
+  alias RedEye.MarketData.BinanceSpotCandle
 
   @impl true
   def mount(_params, _session, socket) do
@@ -26,6 +27,11 @@ defmodule RedEyeWeb.ChartLive.Index do
     updated_chart = put_in(chart.ticker, ticker)
 
     {:noreply, stream_insert(socket, :charts, updated_chart)}
+  end
+
+  # Do nothing with this, for now...
+  def handle_info({:kline, %BinanceSpotCandle{}}, socket) do
+    {:noreply, socket}
   end
 
   def market_direction(val) when is_number(val) do

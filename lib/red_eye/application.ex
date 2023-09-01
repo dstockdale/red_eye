@@ -8,6 +8,7 @@ defmodule RedEye.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {NodeJS.Supervisor, [path: LiveSvelte.SSR.server_path(), pool_size: 4]},
       # Start the Telemetry supervisor
       RedEyeWeb.Telemetry,
       # Start the Ecto repository

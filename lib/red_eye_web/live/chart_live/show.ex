@@ -3,10 +3,12 @@ defmodule RedEyeWeb.ChartLive.Show do
   use RedEyeWeb, :live_view
 
   alias RedEye.Charts
+  alias RedEye.Binance.Enums
+  alias RedEye.MarketData.BinanceSpotCandle
   alias RedEye.MarketData.Ticker
 
-  @intervals ["15 minute", "30 minute", "1 hour", "4 hours", "1 day"]
-  @def_interval "1 hour"
+  @intervals Enums.intervals()
+  @default_interval "1h"
 
   @impl true
   def mount(_params, _session, socket) do
@@ -14,8 +16,7 @@ defmodule RedEyeWeb.ChartLive.Show do
 
     {:ok,
      socket
-     |> assign(interval: @def_interval)
-     |> assign(interval_form: to_form(%{"interval" => @def_interval}))}
+     |> assign(interval: @intervals[@default_interval])}
   end
 
   def get_from_bucket(symbol) do
@@ -27,7 +28,7 @@ defmodule RedEyeWeb.ChartLive.Show do
     chart = Charts.get_chart!(id)
 
     symbol = chart.binance_symbol.symbol
-    candles = RedEye.MarketData.candle_chart(symbol, @def_interval)
+    candles = RedEye.MarketData.candle_chart(symbol, socket.assigns.interval)
     ticker = get_from_bucket(symbol)
 
     {:noreply,
@@ -48,12 +49,22 @@ defmodule RedEyeWeb.ChartLive.Show do
       ) do
     {:noreply,
      socket
-     |> assign(:live_price, ticker.last_price)
      |> add_ticker(ticker)}
   end
 
   # Ignore tickers that aren't our current symbol
   def handle_info({:ticker, %Ticker{}}, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_info(
+        {:kline, %BinanceSpotCandle{symbol: symbol} = candle},
+        %{assigns: %{current_symbol: symbol}} = socket
+      ) do
+    {:noreply, socket |> add_candle(candle)}
+  end
+
+  def handle_info({:kline, %BinanceSpotCandle{}}, socket) do
     {:noreply, socket}
   end
 
@@ -72,6 +83,17 @@ defmodule RedEyeWeb.ChartLive.Show do
   end
 
   def market_direction(_val), do: :up
+
+  defp add_candle(socket, candle) do
+    candle =
+      Map.take(candle, [:high, :low, :open, :close, :kline_open_time])
+      |> Map.new(fn
+        {:kline_open_time, time} -> {:time, time / 1000}
+        anything -> anything
+      end)
+
+    push_event(socket, "update-candle", candle)
+  end
 
   defp add_ticker(socket, ticker) do
     socket = assign(socket, :ticker, ticker)

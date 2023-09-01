@@ -83,10 +83,18 @@ defmodule RedEye.Charts.ChartQueries do
     )
   end
 
-  def parse_interval(string) do
-    [period, unit] = String.split(string, " ")
+  @spec parse_interval(String.t()) :: Postgrex.Interval.t()
+  @spec parse_interval(integer(), <<_::8>>) :: Postgrex.Interval.t()
 
-    parse_interval(String.to_integer(period), String.slice(unit, 0, 1))
+  def parse_interval(string) do
+    {period, unit} = Integer.parse(string)
+
+    unit =
+      unit
+      |> String.trim()
+      |> String.slice(0, 1)
+
+    parse_interval(period, unit)
   end
 
   def parse_interval(period, "m") do
@@ -100,7 +108,15 @@ defmodule RedEye.Charts.ChartQueries do
   end
 
   def parse_interval(period, "d") do
-    days = period * 60 * 60 * 24
-    %Postgrex.Interval{secs: days}
+    %Postgrex.Interval{days: period}
+  end
+
+  def parse_interval(period, "w") do
+    weeks = period * 7
+    %Postgrex.Interval{days: weeks}
+  end
+
+  def parse_interval(period, "M") do
+    %Postgrex.Interval{months: period}
   end
 end

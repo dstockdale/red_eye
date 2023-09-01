@@ -5,6 +5,7 @@ defmodule RedEye.Streaming.Binance do
   require Mint.HTTP
 
   alias RedEye.MarketData.Ticker
+  alias RedEye.MarketData.BinanceSpotCandle
 
   defstruct [:conn, :websocket, :request_ref, :caller, :status, :resp_headers, :closing?]
 
@@ -28,6 +29,7 @@ defmodule RedEye.Streaming.Binance do
     GenServer.call(__MODULE__, {:send_text, text})
   end
 
+  @spec die! :: true
   def die! do
     Process.whereis(__MODULE__)
     |> Process.exit(:kill)
@@ -227,6 +229,46 @@ defmodule RedEye.Streaming.Binance do
     )
     |> stash()
     |> broadcast(:ticker)
+  end
+
+  def handle_msg(%{
+        "data" => %{
+          "e" => "kline",
+          "k" => %{
+            "t" => kline_open_time,
+            "T" => kline_close_time,
+            "i" => interval,
+            "Q" => taker_buy_base_asset_volume,
+            "V" => taker_buy_quote_asset_volume,
+            "o" => open,
+            "c" => close,
+            "h" => high,
+            "l" => low,
+            "n" => number_of_trades,
+            "q" => quote_asset_volume,
+            "v" => volume,
+            "x" => kline_closed
+          },
+          "s" => symbol
+        }
+      }) do
+    %BinanceSpotCandle{
+      symbol: symbol,
+      kline_open_time: kline_open_time,
+      kline_close_time: kline_close_time,
+      interval: interval,
+      taker_buy_base_asset_volume: taker_buy_base_asset_volume,
+      taker_buy_quote_asset_volume: taker_buy_quote_asset_volume,
+      open: open,
+      close: close,
+      high: high,
+      low: low,
+      number_of_trades: number_of_trades,
+      quote_asset_volume: quote_asset_volume,
+      volume: volume,
+      kline_closed: kline_closed
+    }
+    |> broadcast(:kline)
   end
 
   def handle_msg(msg) do

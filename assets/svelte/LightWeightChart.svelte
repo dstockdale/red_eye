@@ -1,4 +1,5 @@
 <script>
+  import { Series } from "js/charts";
   import { CrosshairMode, ColorType } from "lightweight-charts";
   import {
     Chart,
@@ -18,7 +19,11 @@
   // }
 
   export let data;
-  export let context;
+  export let live;
+
+  function mergeCandle(candle) {
+    candleSeries.update(candle);
+  }
 
   let timer = null;
 
@@ -31,13 +36,11 @@
     }
     const logicalRange = timeScale.getVisibleLogicalRange();
     const barsInfo = candleSeries.barsInLogicalRange(logicalRange);
+    live.pushEvent("candle:bars-info", barsInfo);
 
-    context.pushEvent("candle:bars-info", barsInfo);
-
-    context.handleEvent("new-point", (all) => {
-      console.log(all, "new-point");
+    live.handleEvent("update-candle", (candle) => {
+      mergeCandle(candle);
     });
-    // console.log(barsInfo);
   }
 
   function handleTimeScaleRef(api) {

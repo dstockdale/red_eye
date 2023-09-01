@@ -15,6 +15,7 @@ module.exports = {
     "../lib/*_web/**/*.*ex",
     "../deps/live_select/lib/live_select/component.*ex",
     "../deps/petal_components/**/*.*ex",
+    "./svelte/**/*.svelte",
   ],
   theme: {
     extend: {

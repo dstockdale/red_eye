@@ -20,18 +20,17 @@
   ]}>
     <%= @ticker.price_change %> <%= @ticker.price_change_percent %>&#37;
   </div>
+  <div>
+    <%= @interval %>
+  </div>
 </div>
 
-<section id="lightweight-svelte-container" phx-update="ignore">
-  <div
-    id="svelteChart"
-    class="min-h-[400px] min-w-[600px]"
-    phx-hook="SvelteComponent"
-    data-name="LightWeightChart"
-    data-props={Jason.encode!(%{data: @chart_data})}
-  >
-  </div>
-</section>
+<.svelte
+  class="min-h-[400px] min-w-[600px]"
+  name="LightWeightChart"
+  props={%{data: @chart_data, interval: @interval}}
+  socket={@socket}
+/>
 
 <.modal :if={@live_action == :edit} id="chart-modal">
   <.live_component

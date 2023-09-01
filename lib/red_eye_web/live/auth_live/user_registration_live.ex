@@ -16,9 +16,9 @@ defmodule RedEyeWeb.UserRegistrationLive do
       </.p>
       <.p class="text-center">
         <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
-            Sign in
-          </.link>
-          to your account now.
+          Sign in
+        </.link>
+        to your account now.
       </.p>
 
       <.form
@@ -38,7 +38,7 @@ defmodule RedEyeWeb.UserRegistrationLive do
         <.field field={@form[:password]} type="password" label="Password" required />
 
         <div class="flex justify-end">
-          <.button  phx-disable-with="Creating account...">
+          <.button phx-disable-with="Creating account...">
             Create an account
           </.button>
         </div>

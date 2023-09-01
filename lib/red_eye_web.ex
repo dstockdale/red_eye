@@ -92,7 +92,7 @@ defmodule RedEyeWeb do
 
       use PetalComponents
 
-      import PhoenixLiveReact
+      import LiveSvelte
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())
