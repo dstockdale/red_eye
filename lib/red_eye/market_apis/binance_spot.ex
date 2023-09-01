@@ -9,7 +9,7 @@ defmodule RedEye.MarketApis.BinanceSpot do
     Req.new(base_url: @base_url)
   end
 
-  @spec fetch(integer(), String.t(), String.t()) :: {:ok, map()} | {:error, map()}
+  @spec fetch(integer(), String.t(), String.t()) :: {:ok, list()} | {:error, map()}
   def fetch(start_time, symbol, interval) do
     params = [
       symbol: symbol,
@@ -34,53 +34,5 @@ defmodule RedEye.MarketApis.BinanceSpot do
       {:error, response} ->
         raise IO.inspect(response)
     end
-  end
-
-  @spec map_entries(list, {String, String}) :: list
-  def map_entries(list, {symbol, interval}) do
-    list
-    |> Enum.map(fn item ->
-      %{
-        symbol: symbol,
-        interval: interval,
-        timestamp: timestamp(item, 0),
-        unix_time: Enum.at(item, 0),
-        open: decimal(item, 1),
-        high: decimal(item, 2),
-        low: decimal(item, 3),
-        close: decimal(item, 4),
-        volume: decimal(item, 5),
-        kline_open_time: timestamp(item, 0),
-        kline_close_time: timestamp(item, 6),
-        quote_asset_volume: decimal(item, 7),
-        number_of_trades: Enum.at(item, 8),
-        taker_buy_base_asset_volume: decimal(item, 9),
-        taker_buy_quote_asset_volume: decimal(item, 10),
-        inserted_at: now(),
-        updated_at: now()
-      }
-    end)
-  end
-
-  defp timestamp(item, i) do
-    item
-    |> Enum.at(i)
-    |> to_integer()
-    |> DateTime.from_unix!(:millisecond)
-    |> DateTime.truncate(:second)
-  end
-
-  defp to_integer(string) when is_binary(string), do: String.to_integer(string)
-  defp to_integer(number) when is_number(number), do: number
-
-  defp now do
-    DateTime.utc_now()
-    |> DateTime.truncate(:second)
-  end
-
-  defp decimal(item, i) do
-    item
-    |> Enum.at(i)
-    |> Decimal.new()
   end
 end
