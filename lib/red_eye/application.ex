@@ -18,9 +18,9 @@ defmodule RedEye.Application do
       # Start Finch
       {Finch, name: RedEye.Finch},
       # Start the Endpoint (http/https)
+      # Phoenix presence
+      RedEyeWeb.Presence,
       RedEyeWeb.Endpoint,
-      # Start a worker by calling: RedEye.Worker.start_link(arg)
-      # {RedEye.Worker, arg}
       {Oban, Application.fetch_env!(:red_eye, Oban)},
       # Key, value store...
       RedEye.Bucket.Supervisor,

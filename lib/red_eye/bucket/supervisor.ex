@@ -10,7 +10,7 @@ defmodule RedEye.Bucket.Supervisor do
   def init(:ok) do
     children = [
       {Bucket, name: :symbols},
-      {Bucket, name: :fetches}
+      {Bucket, name: :chart_intervals}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)

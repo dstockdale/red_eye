@@ -11,6 +11,7 @@ defmodule RedEye.MarketData do
   alias RedEye.MarketData.{BinanceSpotCandle, BinanceSpotQueries}
 
   @ttl :timer.hours(1)
+  @channel "market-data"
 
   @doc """
   Returns the list of binance_spot_candles.
@@ -115,10 +116,12 @@ defmodule RedEye.MarketData do
     %BinanceSpotCandle{}
     |> BinanceSpotCandle.changeset(attrs)
     |> Repo.insert()
+    |> broadcast(:candle_inserted)
   end
 
   def create_binance_spot_candle(list) when is_list(list) do
-    Repo.insert_all(BinanceSpotCandle, list, on_conflict: :nothing)
+    Repo.insert_all(BinanceSpotCandle, list, on_conflict: :nothing, returning: true)
+    |> broadcast(:candle_inserted)
   end
 
   @doc """
@@ -165,8 +168,10 @@ defmodule RedEye.MarketData do
   def upsert_binance_symbols(symbols) do
     Repo.insert_all(BinanceSymbol, symbols,
       on_conflict: {:replace_all_except, [:symbol, :inserted_at]},
-      conflict_target: [:symbol]
+      conflict_target: [:symbol],
+      returning: true
     )
+    |> broadcast(:candle_inserted)
   end
 
   def list_binance_symbols(search \\ "") do
@@ -221,4 +226,32 @@ defmodule RedEye.MarketData do
     |> Repo.all()
     |> List.flatten()
   end
+
+  def fill_all_gaps do
+    distinct_symbols()
+    |> Enum.map(fn symbol -> RedEye.MarketApis.fill_gaps(symbol) end)
+  end
+
+  def subscribe do
+    Phoenix.PubSub.subscribe(RedEye.PubSub, @channel)
+  end
+
+  defp broadcast({count, items}, event) when is_number(count) and is_list(items) do
+    items
+    |> Enum.map(fn item ->
+      broadcast({:ok, item}, event)
+    end)
+  end
+
+  defp broadcast({:ok, item}, event) do
+    Phoenix.PubSub.broadcast(
+      RedEye.PubSub,
+      @channel,
+      {event, item}
+    )
+
+    {:ok, item}
+  end
+
+  defp broadcast({:error, _reason} = error, _event), do: error
 end

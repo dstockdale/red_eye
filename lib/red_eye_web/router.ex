@@ -27,22 +27,6 @@ defmodule RedEyeWeb.Router do
     plug(:accepts, ["json"])
   end
 
-  scope "/", RedEyeWeb do
-    pipe_through(:browser)
-
-    live("/charts", ChartLive.Index, :index)
-    live("/charts/new", ChartLive.New, :new)
-    live("/charts/:id/edit", ChartLive.Edit, :edit)
-
-    live("/charts/:id", ChartLive.Show, :show)
-    live("/charts/:id/show/edit", ChartLive.Show, :edit)
-  end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", RedEyeWeb do
-  #   pipe_through :api
-  # end
-
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:red_eye, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put
@@ -89,6 +73,13 @@ defmodule RedEyeWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [{RedEyeWeb.UserAuth, :ensure_authenticated}] do
+      live("/charts", ChartLive.Index, :index)
+      live("/charts/new", ChartLive.New, :new)
+      live("/charts/:id/edit", ChartLive.Edit, :edit)
+
+      live("/charts/:id", ChartLive.Show, :show)
+      live("/charts/:id/show/edit", ChartLive.Show, :edit)
+
       live("/users/opt_code", UserOtpCodeLive, :edit)
       live("/users/settings", UserSettingsLive, :edit)
       live("/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email)

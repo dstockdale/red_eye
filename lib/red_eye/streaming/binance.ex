@@ -266,7 +266,8 @@ defmodule RedEye.Streaming.Binance do
       number_of_trades: number_of_trades,
       quote_asset_volume: quote_asset_volume,
       volume: volume,
-      kline_closed: kline_closed
+      kline_closed: kline_closed,
+      unix_time: kline_open_time
     }
     |> broadcast(:kline)
   end

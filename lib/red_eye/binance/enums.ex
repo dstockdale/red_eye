@@ -6,7 +6,6 @@ defmodule RedEye.Binance.Enums do
   """
   def intervals do
     %{
-      "1s" => "1 second",
       "1m" => "1 minute",
       "3m" => "3 minutes",
       "5m" => "5 minutes",

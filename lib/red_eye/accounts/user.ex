@@ -12,6 +12,10 @@ defmodule RedEye.Accounts.User do
     field(:totp_confirmed_at, :naive_datetime)
     field(:otp_code, :integer, virtual: true)
 
+    embeds_one :preferences, Preference do
+      field :chart_interval, :string, default: "1 hour"
+    end
+
     timestamps()
   end
 

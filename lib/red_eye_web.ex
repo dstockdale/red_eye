@@ -55,6 +55,7 @@ defmodule RedEyeWeb do
         layout: {RedEyeWeb.Layouts, :app}
 
       unquote(html_helpers())
+      defguard is_connected?(socket) when socket.transport_pid != nil
     end
   end
 
