@@ -1,4 +1,7 @@
 defmodule RedEye.MarketApis.BinanceSpotMap do
+  @moduledoc """
+  BinanceSpotMap quick map of incoming candle data for Binance
+  """
   def map_entries(list, {symbol, interval}) do
     list
     |> Enum.map(fn item -> map_entry(symbol, interval, item) end)

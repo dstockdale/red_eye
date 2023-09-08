@@ -8,7 +8,8 @@ defmodule RedEye.MarketData do
 
   alias RedEye.Repo
   alias RedEye.Cache
-  alias RedEye.MarketData.{BinanceSpotCandle, BinanceSpotQueries}
+  alias RedEye.MarketData.BinanceSpotCandle
+  alias RedEye.MarketData.BinanceSpotQueries
 
   @ttl :timer.hours(1)
   @channel "market-data"
@@ -83,6 +84,10 @@ defmodule RedEye.MarketData do
     |> RedEye.Charts.SwingQueries.add_prev_next_swing_dir()
     |> RedEye.Charts.SwingQueries.add_pivots()
     |> Repo.all()
+    |> Enum.reject(fn item -> is_nil(item.pivot) end)
+    |> Enum.map(fn item ->
+      %{value: item.pivot, time: item.time}
+    end)
   end
 
   def most_recent_candle(symbol) do

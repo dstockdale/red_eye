@@ -7,44 +7,60 @@ defmodule RedEyeWeb.ChartLive.Show do
   alias RedEye.MarketData.BinanceSpotCandle
   alias RedEye.MarketData.Ticker
 
+  @initial_interval "1h"
+
   @impl true
+  def mount(
+        %{"id" => id},
+        _session,
+        %{assigns: %{current_user: current_user}} = socket
+      ) do
+    if connected?(socket) do
+      Presence.chart_subscribe()
+      Charts.subscribe()
+      RedEye.MarketData.subscribe()
+    end
 
-  def mount(_param, _session, %{assigns: %{current_user: current_user}} = socket)
-      when is_connected?(socket) do
-    join_page(current_user, socket)
-
-    Presence.chart_subscribe()
-    Charts.subscribe()
-    RedEye.MarketData.subscribe()
+    chart = Charts.get_chart!(id)
+    symbol = chart.binance_symbol.symbol
+    candles = RedEye.MarketData.candle_chart(symbol, @initial_interval)
+    swings = RedEye.MarketData.swing_chart(symbol, @initial_interval)
+    ticker = get_from_bucket(symbol)
 
     {:ok,
      socket
      |> assign(:users, %{})
-     |> handle_joins(Presence.list("chart-view"))}
-  end
-
-  def mount(_params, _session, socket) do
-    {:ok, socket}
-  end
-
-  @impl true
-  def handle_params(%{"id" => id}, _, socket) do
-    # interval = socket.assigns.current_user.preferences.chart_interval
-    interval = "1h"
-    chart = Charts.get_chart!(id)
-    symbol = chart.binance_symbol.symbol
-    candles = RedEye.MarketData.candle_chart(symbol, interval)
-    ticker = get_from_bucket(symbol)
-
-    {:noreply,
-     socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
      |> assign(:current_symbol, symbol)
      |> assign(:live_price, ticker.last_price)
      |> assign(:ticker, ticker)
      |> assign(:chart, chart)
      |> assign(:chart_data, candles)
-     |> assign(:interval, interval)}
+     |> assign(:swing_data, swings)
+     |> assign(:interval, @initial_interval)}
+  end
+
+  # def mount(_params, _session, socket) do
+  #   {:ok, socket}
+  # end
+
+  @impl true
+  def handle_params(
+        _params,
+        %{
+          assigns: %{
+            current_symbol: symbol,
+            interval: interval,
+            current_user: current_user,
+            chart: chart
+          }
+        } = socket
+      ) do
+    join_page({symbol, interval, current_user, chart}, socket)
+
+    {:noreply,
+     socket
+     |> handle_joins(Presence.list("chart-view"))}
   end
 
   @impl true
@@ -74,8 +90,7 @@ defmodule RedEyeWeb.ChartLive.Show do
   end
 
   def handle_info({:chart_updated, chart}, socket) do
-    # todo ui to inform something updated
-    IO.inspect(chart, label: ":chart_updated")
+    # IO.inspect(chart, label: ":chart_updated")
     {:noreply, socket}
   end
 
@@ -94,8 +109,14 @@ defmodule RedEyeWeb.ChartLive.Show do
   end
 
   @impl true
-  def handle_event("candle:bars-info", %{"from" => _from, "to" => _to}, socket) do
-    {:noreply, socket}
+  def handle_event(
+        "candle:bars-fetch",
+        %{"from" => from, "to" => _to},
+        %{assigns: %{current_symbol: symbol, interval: interval}} = socket
+      ) do
+    candles = RedEye.MarketData.candle_chart(symbol, interval)
+
+    {:noreply, socket |> assign(:data, candles)}
   end
 
   def handle_event("set-interval", %{"interval" => value}, socket) do
@@ -141,14 +162,16 @@ defmodule RedEyeWeb.ChartLive.Show do
     RedEye.MarketData.Bucket.get(:symbols, symbol, %Ticker{})
   end
 
-  defp join_page(user, socket) do
+  defp join_page({symbol, interval, current_user, chart}, socket) do
     {:ok, _} =
-      Presence.track(self(), "chart-view", user.id, %{
-        name: user.email,
-        joined_at: :os.system_time(:seconds)
-      })
-
-    {:noreply, socket}
+      Presence.track(
+        self(),
+        "chart-view",
+        "#{chart.exchange}-#{symbol}-#{interval}-#{current_user.id}",
+        %{
+          joined_at: :os.system_time(:seconds)
+        }
+      )
   end
 
   defp page_title(:show), do: "Show Chart"

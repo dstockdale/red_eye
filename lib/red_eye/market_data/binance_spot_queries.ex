@@ -1,4 +1,7 @@
 defmodule RedEye.MarketData.BinanceSpotQueries do
+  @moduledoc """
+  Collection of queries for BinanceSpotCandle schema
+  """
   import Ecto.Query, warn: false
   alias RedEye.MarketData.BinanceSpotCandle
 

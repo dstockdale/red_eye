@@ -1,4 +1,7 @@
 defmodule RedEye.MarketApis do
+  @moduledoc """
+  Handling API requests as opposed to only grabbing data locally
+  """
   alias RedEye.MarketApis.BinanceSpot
   alias RedEye.MarketApis.BinanceSymbolReq
   alias RedEye.MarketApis.Timing

@@ -1,4 +1,7 @@
 defmodule RedEye.MarketData.BinanceSpotCandle do
+  @moduledoc """
+  BinanceSpotCandle schema
+  """
   use Ecto.Schema
   import Ecto.Changeset
 

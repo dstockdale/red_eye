@@ -1,4 +1,7 @@
 defmodule RedEye.MarketData.Ticker do
+  @moduledoc """
+  Tickers are mainly used for displaying the last price on the front end.
+  """
   @derive {Jason.Encoder,
            only: [:symbol, :price_change, :price_change_percent, :last_price, :updated_at]}
   defstruct [

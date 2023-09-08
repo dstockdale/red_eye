@@ -1,4 +1,9 @@
 defmodule RedEye.Streaming.Supervisor do
+  @moduledoc """
+  Supervisor for the Biance websocket connection.
+
+  Brings the connection back up when it goes down which happens often enough
+  """
   use Supervisor
 
   def start_link(arg) do

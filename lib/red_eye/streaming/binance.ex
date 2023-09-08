@@ -1,4 +1,11 @@
 defmodule RedEye.Streaming.Binance do
+  @moduledoc """
+  Handles connecting to Binances unauthed websocket endpoint for streaming all their market data
+  for candles mostly.
+
+  Not the same as an authed connection that could execute a trade etc.
+  """
+
   use GenServer
 
   require Logger
@@ -36,18 +43,19 @@ defmodule RedEye.Streaming.Binance do
   end
 
   def status do
-    pid = Process.whereis(__MODULE__)
-    IO.inspect(pid, label: "pid")
+    case Process.whereis(__MODULE__) do
+      pid when is_pid(pid) ->
+        {:ok, %{pid: pid, state: :sys.get_state(pid)}}
 
-    pid
-    |> :sys.get_state()
-    |> IO.inspect(label: "state")
+      _ ->
+        :error
+    end
   end
 
   def start_link(args \\ []) do
     with {:ok, socket} <- GenServer.start_link(__MODULE__, args, name: __MODULE__),
          {:ok, :connected} <- GenServer.call(socket, {:connect, @url}) do
-      RedEye.Streaming.Watcher.auto_subscribe()
+      # RedEye.Streaming.Watcher.auto_subscribe()
       {:ok, socket}
     end
   end

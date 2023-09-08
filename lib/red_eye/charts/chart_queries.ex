@@ -1,6 +1,6 @@
 defmodule RedEye.Charts.ChartQueries do
   @moduledoc """
-  The ChartQueries context.
+  The ChartQueries queries for charts.
   """
 
   import Ecto.Query, warn: false

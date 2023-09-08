@@ -32,7 +32,7 @@ defmodule RedEye.MarketApis.BinanceSpot do
         end
 
       {:error, response} ->
-        raise IO.inspect(response)
+        raise response
     end
   end
 end

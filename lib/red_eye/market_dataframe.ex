@@ -1,4 +1,9 @@
 defmodule RedEye.MarketDataframe do
+  @moduledoc """
+  MarketDataframe is an attempt at using Explorer to munge all the ohcl data into swings mainly.
+
+  WIP as it seems much more efficient to handle in Ecto for now...
+  """
   alias Explorer.DataFrame
   alias Explorer.Series
   require DataFrame, as: DF

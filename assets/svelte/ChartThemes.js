@@ -9,7 +9,7 @@ const THEMES = {
           color: "rgb(15, 23, 42)",
         },
         lineColor: "#2B2B43",
-        textColor: "#D9D9D9",
+        textColor: "#94a3b8",
       },
       watermark: {
         color: "rgba(0, 0, 0, 0)",
@@ -22,7 +22,7 @@ const THEMES = {
           color: "#2B2B43",
         },
         horzLines: {
-          color: "#363C4E",
+          color: "#2B2B43",
         },
       },
     },

@@ -1,4 +1,5 @@
 defmodule RedEyeWeb.UserAuth do
+  @moduledoc false
   use RedEyeWeb, :verified_routes
 
   import Plug.Conn
@@ -34,6 +35,13 @@ defmodule RedEyeWeb.UserAuth do
     |> put_token_in_session(token)
     |> maybe_write_remember_me_cookie(token, params)
     |> redirect(to: user_return_to || signed_in_path(conn))
+  end
+
+  def fetch_session_id(conn, _, _) do
+    case get_session(conn, :session_id) do
+      nil -> put_session(conn, :session_id, Ecto.UUID.generate())
+      _ -> conn
+    end
   end
 
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do

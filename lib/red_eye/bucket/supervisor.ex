@@ -1,4 +1,5 @@
 defmodule RedEye.Bucket.Supervisor do
+  @moduledoc false
   use Supervisor
   alias RedEye.MarketData.Bucket
 

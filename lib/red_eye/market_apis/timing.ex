@@ -1,4 +1,7 @@
 defmodule RedEye.MarketApis.Timing do
+  @moduledoc """
+  Timing module for generic timing functions
+  """
   @doc """
   Given a date in the past this will return a list of unix timestamps (in milliseconds)
   for feeding to things like the Binance API when you need to loop though many start times

@@ -1,4 +1,7 @@
 defmodule RedEye.Charts.Candle do
+  @moduledoc """
+  Candle struct
+  """
   defstruct [:time, :high, :low, :open, :close]
 
   defimpl Jason.Encoder, for: RedEye.Charts.Candle do

@@ -26,7 +26,8 @@ defmodule RedEye.Application do
       RedEye.Bucket.Supervisor,
       RedEye.Streaming.Supervisor,
       # Caching...
-      RedEye.Cache
+      RedEye.Cache,
+      TzWorld.Backend.DetsWithIndexCache
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

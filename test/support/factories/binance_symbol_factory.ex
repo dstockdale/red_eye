@@ -1,4 +1,7 @@
 defmodule RedEye.BinanceSymbolFactory do
+  @moduledoc """
+  Factory for BinanceSymbol
+  """
   defmacro __using__(_opts) do
     quote do
       def binance_symbol_factory do

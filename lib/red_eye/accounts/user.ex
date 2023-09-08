@@ -1,4 +1,7 @@
 defmodule RedEye.Accounts.User do
+  @moduledoc """
+  User schema
+  """
   use Ecto.Schema
   import Ecto.Changeset
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -13,7 +16,7 @@ defmodule RedEye.Accounts.User do
     field(:otp_code, :integer, virtual: true)
 
     embeds_one :preferences, Preference do
-      field :chart_interval, :string, default: "1 hour"
+      field(:chart_interval, :string, default: "1h")
     end
 
     timestamps()
@@ -57,9 +60,6 @@ defmodule RedEye.Accounts.User do
       |> validate_required([:otp_code])
       |> validate_otp_code(:otp_code, secret)
       |> maybe_confirm(:totp_confirmed_at)
-
-    IO.inspect(changes)
-    IO.inspect(attrs)
 
     changes
   end
@@ -134,7 +134,9 @@ defmodule RedEye.Accounts.User do
   end
 
   defp maybe_add_totp_secret(changeset) do
-    unless get_field(changeset, :totp_secret) do
+    totp_secret = get_field(changeset, :totp_secret)
+
+    if is_nil(totp_secret) do
       changeset
       |> put_change(:totp_secret, secret())
     else

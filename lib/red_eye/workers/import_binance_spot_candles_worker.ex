@@ -1,4 +1,7 @@
 defmodule RedEye.Workers.ImportBinanceSpotCandlesWorker do
+  @moduledoc """
+  Generic way of importing candles data from binance
+  """
   use Oban.Worker, queue: :data_import
 
   @impl Oban.Worker

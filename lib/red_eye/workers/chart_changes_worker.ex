@@ -1,4 +1,7 @@
 defmodule RedEye.Workers.ChartChangesWorker do
+  @moduledoc """
+  Mainly used when you first add a chart and it goes and fetches all the historical data
+  """
   use Oban.Worker, queue: :data_import, unique: [period: 30]
 
   @impl Oban.Worker

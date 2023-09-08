@@ -1,4 +1,9 @@
 defmodule RedEye.MarketData.Bucket do
+  @moduledoc """
+  Bucket is an Agent for stashing ephemeral stuff like Ticker values.
+
+  ETS would be too much for these things but an Agent process is just fine
+  """
   use Agent
 
   @doc """

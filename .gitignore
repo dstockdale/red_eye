@@ -38,3 +38,6 @@ npm-debug.log
 
 # Ignore ssr build for svelte.
 /priv/svelte/
+
+/priv/plts/*.plt
+/priv/plts/*.plt.hash

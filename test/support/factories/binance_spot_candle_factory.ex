@@ -1,4 +1,7 @@
 defmodule RedEye.BinanceSpotCandleFactory do
+  @moduledoc """
+  Factory for BinanceSpotCandle
+  """
   defmacro __using__(_opts) do
     quote do
       def binance_spot_candle_factory do

@@ -1,6 +1,8 @@
-defmodule RedEye.Streaming.Watcher do
+defmodule RedEye.Streaming.BinanceSubscription do
   @moduledoc """
-  sub things to binance stream...
+  Handle the subscriptions for the binance websocket.
+
+  Will probably become a Phoenix.Channel
   """
   def auto_subscribe do
     binance_symbols()

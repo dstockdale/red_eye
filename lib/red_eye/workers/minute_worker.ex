@@ -1,11 +1,14 @@
 defmodule RedEye.Workers.MinuteWorker do
+  @moduledoc """
+  MinuteWorker run by Oban once a minute
+  """
   use Oban.Worker, queue: :data_import, unique: [period: 30], max_attempts: 1
 
   @impl Oban.Worker
   @spec perform(Oban.Job.t()) :: :ok
   def perform(_args) do
     RedEye.MarketData.find_binance_candle_symbols()
-    |> Enum.map(fn symbol ->
+    |> Enum.each(fn symbol ->
       unixtime =
         RedEye.MarketData.most_recent_candle(symbol)
         |> DateTime.to_unix(:millisecond)

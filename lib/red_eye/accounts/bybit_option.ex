@@ -1,4 +1,9 @@
 defmodule RedEye.Accounts.BybitOption do
+  @moduledoc """
+  ByBit options to constuct their super complicated requests.
+
+  Paused because I'm not sure about ByBit anymore...
+  """
   defstruct recv_window: 5000,
             api_key: "0enjWC7Acu2UtW7m1p",
             secret_key: "0oWwRT577SjhiGjpJjQ8wZlh2iBdxDIBg91w",

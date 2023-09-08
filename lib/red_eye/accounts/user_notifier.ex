@@ -1,4 +1,7 @@
 defmodule RedEye.Accounts.UserNotifier do
+  @moduledoc """
+  For sending emails
+  """
   import Swoosh.Email
 
   alias RedEye.Mailer

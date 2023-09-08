@@ -9,7 +9,11 @@ defmodule RedEye.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      dialyzer: [
+        # Put the project-level PLT in the priv/ directory (instead of the default _build/ location)
+        plt_file: {:no_warn, "priv/plts/project.plt"}
+      ]
     ]
   end
 
@@ -68,7 +72,10 @@ defmodule RedEye.MixProject do
       {:phoenix_live_react, "~> 0.4"},
       {:nebulex, "~> 2.5"},
       {:decorator, "~> 1.4"},
-      {:live_svelte, "~> 0.12.0"}
+      {:live_svelte, "~> 0.12.0"},
+      {:astro, "~> 0.10"},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.3", only: [:dev], runtime: false}
     ]
   end
 

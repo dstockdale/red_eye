@@ -28,7 +28,7 @@
 <.svelte
   class="h-[400px] w-[800px]"
   name="LightWeightChart"
-  props={%{data: @chart_data, interval: @interval}}
+  props={%{data: @chart_data, interval: @interval, swings: @swing_data}}
   socket={@socket}
 />
 

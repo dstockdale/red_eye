@@ -56,7 +56,10 @@
     }
     const logicalRange = timeScale.getVisibleLogicalRange();
     const barsInfo = candleSeries.barsInLogicalRange(logicalRange);
-    live.pushEvent("candle:bars-info", barsInfo);
+
+    if (barsInfo.barsBefore <= 10) {
+      live.pushEvent("candle:bars-fetch", barsInfo);
+    }
   }
 
   function handleTimeScaleRef(api) {
@@ -111,8 +114,12 @@
     crosshair: {
       mode: CrosshairMode.Normal,
     },
+    priceScale: {
+      borderVisible: false,
+    },
     timeScale: {
-      borderColor: "rgba(197, 203, 206, 1)",
+      borderVisible: false,
+      // borderColor: "rgb(144, 148, 150)",
     },
     handleScroll: {
       vertTouchDrag: false,
@@ -164,7 +171,14 @@
     barColorsOnPrevClose={false}
     {...theme.series}
   />
-  <LineSeries ref={handleLineSeriesRef} data={[]} reactive={true} />
+  <LineSeries
+    ref={handleLineSeriesRef}
+    data={swings}
+    reactive={true}
+    priceLineVisible={false}
+    lineWidth={2}
+    color="orange"
+  />
 </Chart>
 
 <style>

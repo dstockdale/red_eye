@@ -1,4 +1,10 @@
 defmodule RedEye.Charts.SwingQueries do
+  @moduledoc """
+  Super complicated but calculating swings is messy as you have to look ahead and behind
+  a lot.
+
+  Not efficient but we can fire these off then cache what's generated.
+  """
   import Ecto.Query, warn: false
   alias RedEye.MarketData.BinanceSpotCandle
 
